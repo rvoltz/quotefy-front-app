@@ -2,7 +2,8 @@ import { useState, useMemo, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { PlusCircle, Edit, Trash2, Search } from 'lucide-react';
 import Button from '../components/Button'; // Importa o Button do novo caminho
-import type { Quotation } from '../schemas/types/quotationSchema'; // Importa a interface Quotation
+import type { Quotation} from '../schemas/types/quotationSchema';
+import type { QuotationItem } from '../schemas/quotationSchema';
 
 const QuotationsPage = () => {
   const navigate = useNavigate();
@@ -62,7 +63,7 @@ const QuotationsPage = () => {
         const updatedItems = quotation.items.map(item => {
           if (item.status === 'pendente' || item.status === 'em andamento') {
             const newReceivedQuotes = Math.min(item.receivedQuotes + 1, item.expectedQuotes);
-            let newStatus = item.status;
+            let newStatus: QuotationItem['status'] = item.status;
             let newPrice = item.price;
 
             if (newReceivedQuotes === item.expectedQuotes) {

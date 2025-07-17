@@ -14,7 +14,7 @@ interface SearchableDropdownProps {
   name: string; // Para react-hook-form
 }
 
-const SearchableDropdown = ({ options, value, onChange, placeholder, name }: SearchableDropdownProps) => {
+const SearchableDropdown = ({ options, value, onChange, placeholder}: SearchableDropdownProps) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
