@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Página Não Encontrada</title>
+    <script type="text/javascript">
+        // Redireciona para a página inicial da sua aplicação React
+        // Mantém a parte do caminho para que o React Router possa tentar rotear
+        var path = window.location.pathname;
+        // Certifique-se de que o pathbase está correto para o seu repositório
+        var pathbase = '/quotefy-front-app'; // Seu nome de repositório
+        var newPath = pathbase + '/#' + path.replace(pathbase, ''); // Ajusta o caminho
+        window.location.replace(newPath);
+    </script>
+</head>
+<body>
+    <p>Redirecionando...</p>
+</body>
+</html>
