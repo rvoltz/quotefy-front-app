@@ -4,6 +4,7 @@ import { PlusCircle, Edit, Trash2, Search } from 'lucide-react';
 import Button from '../components/Button'; // Importa o Button do novo caminho
 import type { Quotation} from '../schemas/quotationSchema';
 import type { QuotationItem } from '../schemas/quotationSchema';
+import { format } from 'date-fns';
 
 const QuotationsPage = () => {
   const navigate = useNavigate();
@@ -85,6 +86,18 @@ const QuotationsPage = () => {
   const [filterSearch, setFilterSearch] = useState('');
   const [filterStatus, setFilterStatus] = useState('');
   const [filterDateRange, setFilterDateRange] = useState('');
+
+    // Função auxiliar para formatar a data usando date-fns
+  const formatDate = (dateString: string | undefined): string => {
+    if (!dateString) return 'N/A';
+    try {
+      const date = new Date(dateString);
+      return format(date, 'dd/MM/yyyy'); // Formata usando date-fns
+    } catch (e) {
+      console.error("Erro ao formatar data com date-fns:", dateString, e);
+      return 'Data Inválida';
+    }
+  };
 
   // Função para simular o refresh e atualização de dados
   const simulateRefresh = useCallback(() => {
@@ -320,7 +333,7 @@ const QuotationsPage = () => {
                 return (
                   <tr key={quotation.id}>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{quotation.licensePlate}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{quotation.date}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{formatDate(quotation.date)}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{firstItem?.partName || 'N/A'}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{firstItem?.vehicleModel || 'N/A'}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{displayVendorName}</td>
