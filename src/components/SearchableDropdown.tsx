@@ -12,9 +12,10 @@ interface SearchableDropdownProps {
   onChange: (value: string) => void;
   placeholder?: string;
   name: string; // Para react-hook-form
+  disabled?: boolean; 
 }
 
-const SearchableDropdown = ({ options, value, onChange, placeholder}: SearchableDropdownProps) => {
+const SearchableDropdown = ({ options, value, onChange, placeholder, disabled = false}: SearchableDropdownProps) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -91,6 +92,7 @@ const SearchableDropdown = ({ options, value, onChange, placeholder}: Searchable
           onChange={handleInputChange}
           onFocus={handleInputFocus}
           onBlur={handleInputBlur}
+          disabled={disabled}
           className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 sm:text-sm p-2 pr-10"
         />
         <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
