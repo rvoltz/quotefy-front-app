@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { PlusCircle, Edit, Trash2, Search } from 'lucide-react';
+import { PlusCircle, Edit, Trash2, Search, ChevronLeft, ChevronRight } from 'lucide-react';
 import Button from '../components/Button'; // Importa o Button do novo caminho
 import type { Quotation} from '../schemas/quotationSchema';
 import type { QuotationItem } from '../schemas/quotationSchema';
@@ -86,6 +86,10 @@ const QuotationsPage = () => {
   const [filterSearch, setFilterSearch] = useState('');
   const [filterStatus, setFilterStatus] = useState('');
   const [filterDateRange, setFilterDateRange] = useState('');
+
+  // Estados para paginação
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10); // Valor inicial de 10 itens por página
 
     // Função auxiliar para formatar a data usando date-fns
   const formatDate = (dateString: string | undefined): string => {
@@ -207,6 +211,20 @@ const QuotationsPage = () => {
     return tempQuotations;
   }, [quotations, filterSearch, filterStatus, filterDateRange, allVendors]);
 
+  // Lógica de paginação
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentQuotations = filteredQuotations.slice(indexOfFirstItem, indexOfLastItem);
+
+  const totalPages = Math.ceil(filteredQuotations.length / itemsPerPage);
+
+  const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
+
+  // Reinicia a página para 1 quando o filtro ou o número de itens por página muda
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filterSearch, filterStatus, filterDateRange, itemsPerPage]);
+
 
   const handleEdit = (id: string) => {
     alert(`Editar cotação ${id}`);
@@ -288,7 +306,7 @@ const QuotationsPage = () => {
       </div>
 
       {/* Tabela de Cotações */}
-      <div className="bg-white rounded-lg shadow-md overflow-x-auto">
+      <div className="bg-white rounded-lg shadow-md overflow-x-auto mb-6"> {/* Adicionado mb-6 para espaçamento com a paginação */}
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50"><tr> {/* Ajuste de formatação */}
             <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Placa</th>
@@ -302,8 +320,8 @@ const QuotationsPage = () => {
             <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
           </tr></thead>
           <tbody className="bg-white divide-y divide-gray-200">{ /* Ajuste de formatação */
-            filteredQuotations.length > 0 ? (
-              filteredQuotations.map((quotation) => {
+            currentQuotations.length > 0 ? (
+              currentQuotations.map((quotation) => {
                 const firstItem = quotation.items[0]; // Exibindo o primeiro item para simplificar
                 const totalReceivedQuotes = quotation.items.reduce((sum, item) => sum + item.receivedQuotes, 0);
                 const totalExpectedQuotes = quotation.items.reduce((sum, item) => sum + item.expectedQuotes, 0);
@@ -368,6 +386,83 @@ const QuotationsPage = () => {
             )}</tbody>
         </table>
       </div>
+
+      {/* Controles de Paginação */}
+      {filteredQuotations.length > 0 && ( // Mostra a paginação apenas se houver itens filtrados
+        <nav className="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6 rounded-lg shadow-md">
+          <div className="flex flex-1 justify-between sm:hidden">
+            <Button
+              onClick={() => paginate(currentPage - 1)}
+              disabled={currentPage === 1}
+              variant="outline"
+              className="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+            >
+              Anterior
+            </Button>
+            <Button
+              onClick={() => paginate(currentPage + 1)}
+              disabled={currentPage === totalPages}
+              variant="outline"
+              className="relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+            >
+              Próximo
+            </Button>
+          </div>
+          <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
+            <div className="flex items-center gap-4"> {/* Agrupando informações de exibição e seletor */}
+              <p className="text-sm text-gray-700">                
+                <span className="font-medium">Mostrando {filteredQuotations.length}</span> resultados
+              </p>
+              <div className="flex items-center gap-2">
+                <label htmlFor="items-per-page" className="text-sm font-medium text-gray-700">Itens por página:</label>
+                <select
+                  id="items-per-page"
+                  value={itemsPerPage}
+                  onChange={(e) => setItemsPerPage(Number(e.target.value))}
+                  className="rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 sm:text-sm p-1"
+                >
+                  <option value={10}>10</option>
+                  <option value={20}>20</option>
+                  <option value={50}>50</option>
+                  <option value={100}>100</option>
+                </select>
+              </div>
+            </div>
+            <div>
+              <nav className="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
+                <Button
+                  onClick={() => paginate(currentPage - 1)}
+                  disabled={currentPage === 1}
+                  variant="ghost"
+                  className="relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0"
+                >
+                  <span className="sr-only">Anterior</span>
+                  <ChevronLeft className="h-5 w-5" aria-hidden="true" />
+                </Button>
+                {Array.from({ length: totalPages }, (_, i) => (
+                  <Button
+                    key={i + 1}
+                    onClick={() => paginate(i + 1)}
+                    variant={currentPage === i + 1 ? 'default' : 'ghost'}
+                    className={`relative inline-flex items-center px-4 py-2 text-sm font-semibold focus:z-20 ${currentPage === i + 1 ? 'z-10 bg-orange-600 text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-600' : 'text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:outline-offset-0'}`}
+                  >
+                    {i + 1}
+                  </Button>
+                ))}
+                <Button
+                  onClick={() => paginate(currentPage + 1)}
+                  disabled={currentPage === totalPages}
+                  variant="ghost"
+                  className="relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0"
+                >
+                  <span className="sr-only">Próximo</span>
+                  <ChevronRight className="h-5 w-5" aria-hidden="true" />
+                </Button>
+              </nav>
+            </div>
+          </div>
+        </nav>
+      )}
     </div>
   );
 };
