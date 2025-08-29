@@ -29,7 +29,11 @@ export const quotationSchema = z.object({
   year: z.number().optional(),
   engine: z.string().optional(),
   items: z.array(quotationItemSchema).min(1, { message: 'Uma cotação deve ter pelo menos um item.' }),
-  selectedVendorIds: z.array(z.string()).min(1, { message: 'Selecione pelo menos um fornecedor.' }).optional(), // IDs dos fornecedores selecionados, opcional para a tela de listagem
+  selectedVendorIds: z.array(z.string()).min(1, { message: 'Selecione pelo menos um fornecedor.' }).optional(), 
+  user: z.object({
+    id: z.string(),
+    name: z.string(),
+  }).optional(),
 });
 
 // Schema específico para o formulário de criação de nova cotação

@@ -14,6 +14,7 @@ export const vehicleSchema = z.object({
     .max(7, { message: 'Placa deve ter 7 caracteres.' })
     .regex(/^[A-Z]{3}\d[A-Z]\d{2}$|^[A-Z]{3}\d{4}$/, { message: 'Formato de placa inválido (ex: ABC1D23 ou ABC1234).' }),
   observacoes: z.string().max(500, { message: 'Observações não podem exceder 500 caracteres.' }).optional(),
+  chassi: z.string().max(17, { message: 'Chassi não pode exceder 17 caracteres.' }).optional()
 });
 
 export type VehicleFormData = z.infer<typeof vehicleSchema>;
