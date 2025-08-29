@@ -38,7 +38,7 @@ const SupplierGroupRegistrationPage = () => {
       isActive: true,
     },
   });
-  
+
   const onSubmit = (data: SupplierGroupFormData) => {
     // Aqui você pode mapear os IDs de volta para o objeto completo se precisar
     const selectedSupplierObjects = mockSuppliers.filter(s => data.suppliers.includes(s.id));
