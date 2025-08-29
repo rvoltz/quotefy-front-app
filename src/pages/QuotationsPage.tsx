@@ -4,7 +4,18 @@ import { PlusCircle, Edit, Trash2, Search, ChevronLeft, ChevronRight } from 'luc
 import Button from '../components/Button'; // Importa o Button do novo caminho
 import type { Quotation} from '../schemas/quotationSchema';
 import type { QuotationItem } from '../schemas/quotationSchema';
-import { format } from 'date-fns';
+import { format, subDays } from 'date-fns';
+
+
+// Função auxiliar para gerar datas aleatórias nos últimos 15 dias
+const generateRandomDate = (): string => {
+  const now = new Date();
+  const fifteenDaysAgo = subDays(now, 15);
+  const randomTime = fifteenDaysAgo.getTime() + Math.random() * (now.getTime() - fifteenDaysAgo.getTime());
+  const randomDate = new Date(randomTime);
+  return randomDate.toISOString();
+};
+
 
 const QuotationsPage = () => {
   const navigate = useNavigate();
@@ -12,7 +23,7 @@ const QuotationsPage = () => {
     {
       id: 'q1',
       licensePlate: 'ABC1234',
-      date: '2024-07-01',      
+      date: generateRandomDate(),
       model: 'Civic',
       brand: 'Honda',
       year: 2020,
@@ -21,11 +32,11 @@ const QuotationsPage = () => {
         { partName: 'Pastilha de Freio', vehicleModel: 'Civic', vehicleYear: 2020, expectedQuotes: 3, receivedQuotes: 1, status: 'em andamento', price: undefined, quantity: 1 },
         { partName: 'Filtro de Ar', vehicleModel: 'Civic', vehicleYear: 2020, expectedQuotes: 2, receivedQuotes: 0, status: 'pendente', price: undefined, quantity: 1 },
       ],
-      selectedVendorIds: ['s1', 's2', 's3', 's4', 's5']
+      user: { id: 'u1', name: 'João Silva' }
     },
     {
       id: 'q2',      
-      date: '2024-07-02',
+      date: generateRandomDate(),
       licensePlate: 'XYZ5678',
       model: 'Corolla',
       brand: 'Toyota',
@@ -33,11 +44,11 @@ const QuotationsPage = () => {
       items: [
         { partName: 'Amortecedor Dianteiro', vehicleModel: 'Corolla', vehicleYear: 2021, expectedQuotes: 5, receivedQuotes: 5, status: 'finalizada', price: 550.00, quantity: 2},
       ],
-      selectedVendorIds: ['s1', 's2', 's3', 's4', 's5']
+      user: { id: 'u2', name: 'Maria Souza' }
     },
     {
       id: 'q3',
-      date: '2024-07-03',
+      date: generateRandomDate(),
       licensePlate: 'LMN9101',
       model: 'Onix',
       brand: 'Chevrolet',
@@ -45,11 +56,11 @@ const QuotationsPage = () => {
       items: [
         { partName: 'Vela de Ignição', vehicleModel: 'Onix', vehicleYear: 2019, expectedQuotes: 4, receivedQuotes: 2, status: 'em andamento', price: undefined,  quantity: 4},
       ],
-      selectedVendorIds: ['s1', 's2', 's3', 's4', 's5']
+      user: { id: 'u1', name: 'João Silva' }
     },
      {
       id: 'q4',
-      date: '2024-07-04',
+      date: generateRandomDate(),
       licensePlate: 'OPQ2345',
       model: 'HB20',
       brand: 'Hyundai',
@@ -57,11 +68,11 @@ const QuotationsPage = () => {
       items: [
         { partName: 'Pneu Aro 15', vehicleModel: 'HB20', vehicleYear: 2022, expectedQuotes: 3, receivedQuotes: 3, status: 'finalizada', price: 400.00, quantity: 4},
       ],
-      selectedVendorIds: ['s1', 's2', 's3', 's4', 's5']
+      user: { id: 'u3', name: 'Carlos Pereira' }
     },
     {
       id: 'q5',
-      date: '2024-07-05',
+      date: generateRandomDate(),
       licensePlate: 'RST6789',
       model: 'Tracker',
       brand: 'Chevrolet',
@@ -69,18 +80,9 @@ const QuotationsPage = () => {
       items: [
         { partName: 'Bateria 60Ah', vehicleModel: 'Tracker', vehicleYear: 2023, expectedQuotes: 2, receivedQuotes: 1, status: 'em andamento', price: undefined, quantity: 1 },
       ],
-      selectedVendorIds: ['s1', 's2', 's3', 's4', 's5']
+      user: { id: 'u2', name: 'Maria Souza' }
     },
   ]);
-
-    // Dados mock de fornecedores (para resolver IDs em nomes)
-  const allVendors = useMemo(() => ([
-    { id: 's1', name: 'Auto Peças ABC', isActive: true },
-    { id: 's2', name: 'Distribuidora de Peças XYZ', isActive: true },
-    { id: 's3', name: 'Peças Rápidas LTDA', isActive: false },
-    { id: 's4', name: 'Fornecedor Universal', isActive: true },
-    { id: 's5', name: 'Componentes Automotivos', isActive: true },
-  ]), []);
 
   // Estados para filtros da lista de cotações
   const [filterSearch, setFilterSearch] = useState('');
@@ -96,7 +98,7 @@ const QuotationsPage = () => {
     if (!dateString) return 'N/A';
     try {
       const date = new Date(dateString);
-      return format(date, 'dd/MM/yyyy'); // Formata usando date-fns
+      return format(date, 'dd/MM/yyyy HH:mm'); // Formata com data e hora
     } catch (e) {
       console.error("Erro ao formatar data com date-fns:", dateString, e);
       return 'Data Inválida';
@@ -156,13 +158,9 @@ const QuotationsPage = () => {
         const matchesPartOrVehicle = quotation.items.some(item =>
           item.partName.toLowerCase().includes(searchTerm) ||
           item.vehicleModel.toLowerCase().includes(searchTerm)
-        );
-         // Inclui a busca por nome de fornecedor
-        const matchesVendorName = quotation.selectedVendorIds?.some(vendorId => {
-          const vendor = allVendors.find(v => v.id === vendorId);
-          return vendor?.name.toLowerCase().includes(searchTerm);
-        });
-        return matchesLicensePlate || matchesPartOrVehicle || matchesVendorName;
+        );       
+        const matchesUser = quotation.user?.name?.toLowerCase().includes(searchTerm);
+        return matchesLicensePlate || matchesPartOrVehicle || matchesUser;
       });
     }
 
@@ -209,7 +207,7 @@ const QuotationsPage = () => {
     }
 
     return tempQuotations;
-  }, [quotations, filterSearch, filterStatus, filterDateRange, allVendors]);
+  }, [quotations, filterSearch, filterStatus, filterDateRange]);
 
   // Lógica de paginação
   const indexOfLastItem = currentPage * itemsPerPage;
@@ -310,14 +308,13 @@ const QuotationsPage = () => {
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50"><tr> {/* Ajuste de formatação */}
             <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Placa</th>
-            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data</th>
+            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data/Hora</th>
             <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Peça</th>
             <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Veículo</th>
-            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fornecedor</th>
             <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cotações</th>
             <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-orange-700 uppercase tracking-wider font-bold">Preço Total</th> {/* Destaque */}
-            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Situação</th>
-            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
+            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Usuário</th>
+            <th scope="col" className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
           </tr></thead>
           <tbody className="bg-white divide-y divide-gray-200">{ /* Ajuste de formatação */
             currentQuotations.length > 0 ? (
@@ -325,39 +322,17 @@ const QuotationsPage = () => {
                 const firstItem = quotation.items[0]; // Exibindo o primeiro item para simplificar
                 const totalReceivedQuotes = quotation.items.reduce((sum, item) => sum + item.receivedQuotes, 0);
                 const totalExpectedQuotes = quotation.items.reduce((sum, item) => sum + item.expectedQuotes, 0);
-                const totalPrice = quotation.items.reduce((sum, item) => sum + (item.price || 0), 0);
-
-                let displayVendorName = 'N/A'; // Valor padrão se não houver preço ou fornecedores selecionados
-                if (totalPrice > 0) {
-                  if (quotation.selectedVendorIds && quotation.selectedVendorIds.length > 0) {
-                    // Se houver preço E fornecedores selecionados, escolhe um aleatoriamente
-                    const match = Math.floor(Math.random() * quotation.selectedVendorIds!.length)
-                    displayVendorName = allVendors.find(v => v.id === quotation.selectedVendorIds![match])?.name || 'N/A';      
-                  }
-                }
-
-                // Determina o status geral da cotação para exibição
-                let overallStatusDisplay = 'Desconhecido';
-                if (quotation.items.every(item => item.status === 'finalizada')) {
-                  overallStatusDisplay = 'Finalizada';
-                } else if (quotation.items.some(item => item.status === 'em andamento')) {
-                  overallStatusDisplay = 'Em Andamento';
-                } else if (quotation.items.some(item => item.status === 'pendente')) {
-                  overallStatusDisplay = 'Pendente';
-                } else if (quotation.items.some(item => item.status === 'cancelada')) {
-                  overallStatusDisplay = 'Cancelada';
-                }
-
+                const totalPrice = quotation.items.reduce((sum, item) => sum + (item.price || 0), 0);   
+  
                 return (
                   <tr key={quotation.id}>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{quotation.licensePlate}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{formatDate(quotation.date)}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{firstItem?.partName || 'N/A'}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{firstItem?.vehicleModel || 'N/A'}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{displayVendorName}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{`${totalReceivedQuotes}/${totalExpectedQuotes}`}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-green-700 font-semibold">{totalPrice > 0 ? `R$ ${totalPrice.toFixed(2)}` : '-'}</td> {/* Destaque */}
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 capitalize">{overallStatusDisplay}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{quotation.user?.name || 'N/A'}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <Button
                         variant="ghost"

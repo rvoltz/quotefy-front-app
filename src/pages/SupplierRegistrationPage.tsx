@@ -31,48 +31,18 @@ const SupplierRegistrationPage = () => {
             className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 sm:text-sm p-2"
           />
           {errors.name && <p className="mt-1 text-sm text-red-600">{errors.name.message}</p>}
-        </div>
+        </div>      
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label htmlFor="street" className="block text-sm font-medium text-gray-700">Rua</label>
-            <input
-              id="street"
-              {...register('street')}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 sm:text-sm p-2"
-            />
-            {errors.street && <p className="mt-1 text-sm text-red-600">{errors.street.message}</p>}
-          </div>
-          <div>
-            <label htmlFor="number" className="block text-sm font-medium text-gray-700">Número</label>
-            <input
-              id="number"
-              {...register('number')}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 sm:text-sm p-2"
-            />
-            {errors.number && <p className="mt-1 text-sm text-red-600">{errors.number.message}</p>}
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label htmlFor="neighborhood" className="block text-sm font-medium text-gray-700">Bairro</label>
-            <input
-              id="neighborhood"
-              {...register('neighborhood')}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 sm:text-sm p-2"
-            />
-            {errors.neighborhood && <p className="mt-1 text-sm text-red-600">{errors.neighborhood.message}</p>}
-          </div>
-          <div>
-            <label htmlFor="cityState" className="block text-sm font-medium text-gray-700">Cidade/Estado</label>
-            <input
-              id="cityState"
-              {...register('cityState')}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 sm:text-sm p-2"
-            />
-            {errors.cityState && <p className="mt-1 text-sm text-red-600">{errors.cityState.message}</p>}
-          </div>
+        {/* Novo campo para o Vendedor */}
+        <div>
+          <label htmlFor="seller" className="block text-sm font-medium text-gray-700">Nome do Vendedor</label>
+          <input
+            id="seller"
+            {...register('seller')}
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 sm:text-sm p-2"
+            placeholder="Nome do contato comercial"
+          />
+          {errors.seller && <p className="mt-1 text-sm text-red-600">{errors.seller.message}</p>}
         </div>
 
         <div>

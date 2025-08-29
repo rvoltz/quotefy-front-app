@@ -13,6 +13,8 @@ import PartsPage from './pages/PartsPage';
 import PartRegistrationPage from './pages/PartRegistrationPage';
 import SuppliersPage from './pages/SuppliersPage';
 import SupplierRegistrationPage from './pages/SupplierRegistrationPage';
+import SupplierGroupsPage from './pages/SupplierGroupPage';
+import SupplierGroupRegistrationPage from './pages/SupplierGroupRegistrationPage';
 
 function App() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -45,6 +47,8 @@ function App() {
             <Route path="/cadastro-peca" element={<PartRegistrationPage />} />
             <Route path="/fornecedores" element={<SuppliersPage />} />
             <Route path="/cadastro-fornecedor" element={<SupplierRegistrationPage />} />
+            <Route path="/grupos-fornecedores" element={<SupplierGroupsPage />} />
+            <Route path="/cadastro-grupo-fornecedor" element={<SupplierGroupRegistrationPage />} />
             <Route path="/" element={<HomePage />} />
           </Routes>
         </main>
