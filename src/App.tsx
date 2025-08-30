@@ -15,6 +15,8 @@ import SuppliersPage from './pages/SuppliersPage';
 import SupplierRegistrationPage from './pages/SupplierRegistrationPage';
 import SupplierGroupsPage from './pages/SupplierGroupPage';
 import SupplierGroupRegistrationPage from './pages/SupplierGroupRegistrationPage';
+import QuotationDetailsPage from './pages/QuotationDetailsPage'; 
+
 
 function App() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -49,6 +51,7 @@ function App() {
             <Route path="/cadastro-fornecedor" element={<SupplierRegistrationPage />} />
             <Route path="/grupos-fornecedores" element={<SupplierGroupsPage />} />
             <Route path="/cadastro-grupo-fornecedor" element={<SupplierGroupRegistrationPage />} />
+            <Route path="/cotacoes/:id" element={<QuotationDetailsPage />} /> 
             <Route path="/" element={<HomePage />} />
           </Routes>
         </main>

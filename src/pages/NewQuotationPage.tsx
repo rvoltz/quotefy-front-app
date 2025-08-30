@@ -7,6 +7,12 @@ import SearchableDropdown from '../components/SearchableDropdown';
 import type { NewQuotationFormData } from '../schemas/quotationSchema';
 import { newQuotationFormSchema } from '../schemas/quotationSchema';
 
+// Dados mock de grupos de fornecedores (simulando uma API)
+const mockVendorGroups = [
+  { id: 'g1', name: 'Grupo de Pneus', suppliers: [{ id: 's4', name: 'Fornecedor Universal' }] },
+  { id: 'g2', name: 'Grupo de Peças', suppliers: [{ id: 's1', name: 'Auto Peças ABC' }, { id: 's2', name: 'Distribuidora de Peças XYZ' }] },
+  { id: 'g3', name: 'Grupo de Peças e Lubrificantes', suppliers: [{ id: 's5', name: 'Componentes Automotivos' }] },
+];
 
 const NewQuotationPage = () => {
   const { register, handleSubmit, control, watch, setValue, formState: { errors, isSubmitting } } = useForm<NewQuotationFormData>({
@@ -17,20 +23,22 @@ const NewQuotationPage = () => {
       brand: '',
       year: undefined,
       engine: '',
-      items: [{ itemDescription: '', itemBrand: '', quantity: 1 }], // Default values atualizados
-      selectedVendorIds: [], // Renomeado
+      items: [{ itemDescription: '', itemBrand: '', quantity: 1 }],
+      selectedVendorGroupId: '', // Novo campo para o ID do grupo
     }
   });
 
   const { fields, append, remove } = useFieldArray({
     control,
-    name: 'items', // Renomeado de 'parts'
+    name: 'items',
   });
 
-  const enteredLicensePlate = watch('licensePlate'); // Observa o valor do campo placa
-  const [foundByLicensePlate, setFoundByLicensePlate] = useState<boolean | null>(null); // Estado para controlar se o veículo foi encontrado (null para não verificado)
-  const [isLoadingVehicleData, setIsLoadingVehicleData] = useState(false); // Estado para o carregamento da API
+  const enteredLicensePlate = watch('licensePlate');
+  const [foundByLicensePlate, setFoundByLicensePlate] = useState<boolean | null>(null);
+  const [isLoadingVehicleData, setIsLoadingVehicleData] = useState(false);
 
+  // ... (dados mock de veículos, marcas e anos, e as funções `fetchVehicleData`, `useEffect`)
+  
   // Dados mock de veículos por placa (para simular a resposta da API)
   const mockVehiclesApiData = useMemo(() => ([
     { licensePlate: 'ABC1234', model: 'Civic', brand: 'Honda', year: 2020, engine: '2.0 Flex' },
@@ -38,19 +46,6 @@ const NewQuotationPage = () => {
     { licensePlate: 'DEF9012', model: 'Onix', brand: 'Chevrolet', year: 2019, engine: '1.0 Turbo' },
     { licensePlate: 'GHI3456', model: 'HB20', brand: 'Hyundai', year: 2022, engine: '1.0 Aspirado' },
   ]), []);
-
-  // Dados mock de fornecedores (apenas os ativos)
-  const allVendors = useMemo(() => ([ // Renomeado de 'allSuppliers'
-    { id: 's1', name: 'Auto Peças ABC', isActive: true },
-    { id: 's2', name: 'Distribuidora de Peças XYZ', isActive: true },
-    { id: 's3', name: 'Peças Rápidas LTDA', isActive: false },
-    { id: 's4', name: 'Fornecedor Universal', isActive: true },
-    { id: 's5', name: 'Componentes Automotivos', isActive: true },
-  ]), []);
-
-  const activeVendors = useMemo(() => { // Renomeado de 'activeSuppliers'
-    return allVendors.filter(vendor => vendor.isActive);
-  }, [allVendors]);
 
   // Dados mock de Marcas para o veículo
   const allBrands = useMemo(() => ([
@@ -73,24 +68,13 @@ const NewQuotationPage = () => {
     }
     return years;
   }, []);
-
-  // Função para buscar dados do veículo pela placa (simulada)
+  
   const fetchVehicleData = useCallback(async (licensePlate: string) => { // Parâmetro renomeado
     setIsLoadingVehicleData(true);
-    setFoundByLicensePlate(null); // Resetar o estado de encontrado ao iniciar a busca
-
+    setFoundByLicensePlate(null); 
     try {
-      // Simulação de chamada de API
-      // Em um cenário real, você faria:
-      // const response = await fetch(`https://sua-api.com/veiculos/${licensePlate}`);
-      // const data = await response.json();
-
-      // Simulação de delay de rede
       await new Promise(resolve => setTimeout(resolve, 1000));
-
-      // Simular a busca nos dados mockados
       const foundVehicle = mockVehiclesApiData.find(v => v.licensePlate.toUpperCase() === licensePlate.toUpperCase());
-
       if (foundVehicle) {
         setFoundByLicensePlate(true);
         setValue('model', foundVehicle.model);
@@ -99,7 +83,6 @@ const NewQuotationPage = () => {
         setValue('engine', foundVehicle.engine);
       } else {
         setFoundByLicensePlate(false);
-        // Limpa os campos se a placa não for encontrada, permitindo preenchimento manual
         setValue('model', '');
         setValue('brand', '');
         setValue('year', undefined);
@@ -107,8 +90,7 @@ const NewQuotationPage = () => {
       }
     } catch (error) {
       console.error('Erro ao buscar dados do veículo:', error);
-      setFoundByLicensePlate(false); // Em caso de erro, trate como não encontrado
-      // Limpa os campos em caso de erro
+      setFoundByLicensePlate(false);
       setValue('model', '');
       setValue('brand', '');
       setValue('year', undefined);
@@ -118,50 +100,43 @@ const NewQuotationPage = () => {
     }
   }, [mockVehiclesApiData, setValue]);
 
-  // Efeito para buscar detalhes do veículo quando a placa muda
   useEffect(() => {
     if (enteredLicensePlate.trim().length >= 7) {
       fetchVehicleData(enteredLicensePlate);
     } else {
-      setFoundByLicensePlate(null); // Reseta o estado quando a placa está vazia ou menor que 7 caracteres
-      setIsLoadingVehicleData(false); // Desativa o loading se a placa não atende ao critério
-      // Limpa os campos se a placa estiver vazia ou curta
+      setFoundByLicensePlate(null);
+      setIsLoadingVehicleData(false);
       setValue('model', '');
       setValue('brand', '');
       setValue('year', undefined);
       setValue('engine', '');
     }
   }, [enteredLicensePlate, fetchVehicleData, setValue]);
-
+  
   const onSubmit = async (data: NewQuotationFormData) => {
     console.log('Dados da Nova Cotação:', data);
-    // Simular envio para o backend
+    const selectedGroup = mockVendorGroups.find(group => group.id === data.selectedVendorGroupId);
+    console.log('Grupo selecionado:', selectedGroup);
     await new Promise(resolve => setTimeout(resolve, 1000));
-    console.log('Cotação criada e enviada aos fornecedores selecionados! (Verifique o console para os dados)');
-    // Aqui você enviaria os dados para sua API
+    console.log('Cotação criada e enviada aos fornecedores do grupo selecionado! (Verifique o console para os dados)');
   };
 
-  // Função para selecionar todos os fornecedores
-  const handleSelectAllVendors = () => { // Renomeado
-    const allActiveVendorIds = activeVendors.map(vendor => vendor.id); // Renomeado
-    setValue('selectedVendorIds', allActiveVendorIds); // Renomeado
-  };
-
-  // Função para desmarcar todos os fornecedores
-  const handleDeselectAllVendors = () => { // Renomeado
-    setValue('selectedVendorIds', []); // Renomeado
-  };
-
-  // Condição para exibir as seções abaixo da placa
   const showLowerSections = enteredLicensePlate.trim().length >= 7;
+
+  // Mapeia os dados dos grupos para o formato que o SearchableDropdown espera
+  const vendorGroupOptions = useMemo(() => {
+    return mockVendorGroups.map(group => ({
+      value: group.id,
+      label: group.name,
+    }));
+  }, []);
+
 
   return (
     <div className="p-6 max-w-4xl mx-auto bg-white rounded-lg shadow-md">
-
       <h1 className="text-3xl font-bold text-gray-800 mb-6 text-center">Criar Nova Cotação</h1>
-
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-        {/* Campo Placa - Primeira Etapa */}
+        {/* ... (Seção de Placa) */}
         <div className="p-4 border rounded-md bg-gray-50">
           <h2 className="text-xl font-semibold text-gray-700 mb-4">1. Informe a Placa</h2>
           <div>
@@ -172,7 +147,7 @@ const NewQuotationPage = () => {
               {...register('licensePlate')}
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 sm:text-sm p-2 uppercase"
               placeholder="Ex: ABC1234"
-              maxLength={7} // Limita a 7 caracteres para placas padrão
+              maxLength={7}
             />
             {errors.licensePlate && <p className="mt-1 text-sm text-red-600">{errors.licensePlate.message}</p>}
             {isLoadingVehicleData && (
@@ -191,7 +166,7 @@ const NewQuotationPage = () => {
           </div>
         </div>
 
-        {/* Detalhes do Veículo - Habilitado se a placa tiver 7 ou mais caracteres */}
+        {/* ... (Seção de Detalhes do Veículo - Mantém a lógica) */}
         {showLowerSections && (
           <div className="p-4 border rounded-md bg-gray-50">
             <h2 className="text-xl font-semibold text-gray-700 mb-4">
@@ -233,8 +208,8 @@ const NewQuotationPage = () => {
                   render={({ field }) => (
                     <SearchableDropdown
                       options={allYears}
-                      value={field.value !== undefined ? String(field.value) : ''} // Converte para string para o dropdown
-                      onChange={(selectedValue: string) => field.onChange(parseInt(selectedValue, 10))} // Converte de volta para number
+                      value={field.value !== undefined ? String(field.value) : ''}
+                      onChange={(selectedValue: string) => field.onChange(parseInt(selectedValue, 10))}
                       placeholder="Selecione o ano..."
                       name={field.name}
                       disabled={foundByLicensePlate === true || isLoadingVehicleData}
@@ -256,13 +231,13 @@ const NewQuotationPage = () => {
           </div>
         )}
 
-        {/* Adição de Peças - Habilitado se a placa tiver 7 ou mais caracteres */}
+        {/* ... (Seção de Adição de Peças) */}
         {showLowerSections && (
           <div className="p-4 border rounded-md bg-gray-50">
             <h2 className="text-xl font-semibold text-gray-700 mb-4">3. Adicione as Peças e Quantidades</h2>
             {fields.map((field, index) => (
               <div key={field.id} className="flex flex-col md:flex-row gap-4 mb-4 p-3 border border-gray-200 rounded-md bg-white items-end">
-                {/* Campo de Descrição da Peça - Aumentado */}
+                {/* Campo de Descrição da Peça */}
                 <div className="w-full md:w-2/5">
                   <label htmlFor={`items.${index}.itemDescription`} className="block text-sm font-medium text-gray-700">Descrição da Peça</label>
                   <input
@@ -285,7 +260,7 @@ const NewQuotationPage = () => {
                     placeholder="Ex: Bosch"
                   />
                 </div>
-                {/* Campo de Quantidade - Diminuído */}
+                {/* Campo de Quantidade */}
                 <div className="w-full md:w-1/6">
                   <label htmlFor={`items.${index}.quantity`} className="block text-sm font-medium text-gray-700">Quantidade</label>
                   <input
@@ -321,49 +296,27 @@ const NewQuotationPage = () => {
           </div>
         )}
 
-        {/* Seleção de Fornecedores - Habilitado se a placa tiver 7 ou mais caracteres e pelo menos uma peça adicionada */}
+        {/* Seleção do Grupo de Fornecedores - NOVO CAMPO */}
         {showLowerSections && fields.length > 0 && (
           <div className="p-4 border rounded-md bg-gray-50">
-            <h2 className="text-xl font-semibold text-gray-700 mb-4">4. Selecione os Fornecedores para Envio</h2>
-            <div className="flex justify-end gap-2 mb-4"> {/* Botões Selecionar/Desmarcar Todos */}
-              <Button
-                type="button"
-                onClick={handleSelectAllVendors}
-                variant="outline"
-                className="text-sm px-3 py-1 border-gray-400 text-gray-700 hover:bg-gray-100"
-              >
-                Selecionar Todos
-              </Button>
-              <Button
-                type="button"
-                onClick={handleDeselectAllVendors}
-                variant="outline"
-                className="text-sm px-3 py-1 border-gray-400 text-gray-700 hover:bg-gray-100"
-              >
-                Desmarcar Todos
-              </Button>
+            <h2 className="text-xl font-semibold text-gray-700 mb-4">4. Selecione o Grupo de Fornecedores</h2>
+            <div>
+              <label htmlFor="vendorGroup" className="block text-sm font-medium text-gray-700">Grupo de Fornecedores</label>
+              <Controller
+                name="selectedVendorGroupId"
+                control={control}
+                render={({ field }) => (
+                  <SearchableDropdown
+                    options={vendorGroupOptions}
+                    value={field.value}
+                    onChange={field.onChange}
+                    placeholder="Selecione um grupo..."
+                    name={field.name}
+                  />
+                )}
+              />
+              {errors.selectedVendorGroupId && <p className="mt-1 text-sm text-red-600">{errors.selectedVendorGroupId.message}</p>}
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {activeVendors.length > 0 ? (
-                activeVendors.map(vendor => (
-                  <div key={vendor.id} className="flex items-center p-2 border rounded-md bg-white shadow-sm">
-                    <input
-                      id={`vendor-${vendor.id}`}
-                      type="checkbox"
-                      value={vendor.id}
-                      {...register('selectedVendorIds')}
-                      className="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded"
-                    />
-                    <label htmlFor={`vendor-${vendor.id}`} className="ml-2 block text-sm font-medium text-gray-900">
-                      {vendor.name}
-                    </label>
-                  </div>
-                ))
-              ) : (
-                <p className="text-sm text-gray-600 col-span-full">Nenhum fornecedor ativo encontrado.</p>
-              )}
-            </div>
-            {errors.selectedVendorIds && <p className="mt-1 text-sm text-red-600">{errors.selectedVendorIds.message}</p>}
           </div>
         )}
 

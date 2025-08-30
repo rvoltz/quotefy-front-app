@@ -1,6 +1,15 @@
 // src/schemas/quotationSchema.ts
 import { z } from 'zod';
 
+
+export const quotationStatusEnum = z.enum([
+  'Aberta',
+  'Pedido confirmado',
+  'Cancelada',
+  'Concluida',
+]);
+
+
 // Schema para um item individual da cotação
 // Contém campos para a descrição da peça, marca, quantidade,
 // e campos opcionais para o status da cotação e preço (que são preenchidos após o processo de cotação).
@@ -34,6 +43,7 @@ export const quotationSchema = z.object({
     id: z.string(),
     name: z.string(),
   }).optional(),
+  status: quotationStatusEnum
 });
 
 // Schema específico para o formulário de criação de nova cotação
@@ -52,7 +62,7 @@ export const newQuotationFormSchema = z.object({
       quantity: z.number().min(1, 'A quantidade deve ser pelo menos 1.'),
     })
   ).min(1, 'Adicione pelo menos uma peça.'),
-  selectedVendorIds: z.array(z.string()).min(1, 'Selecione pelo menos um fornecedor.'),
+  selectedVendorGroupId: z.string().min(1, { message: 'Selecione um grupo de fornecedores.' }),
 });
 
 export type Quotation = z.infer<typeof quotationSchema>;

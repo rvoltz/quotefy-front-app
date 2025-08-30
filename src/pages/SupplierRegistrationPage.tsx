@@ -1,15 +1,15 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import Button from '../components/Button'; // Importa o Button do novo caminho
-import { supplierSchema } from '../schemas/supplierSchema'; // Importa o schema e o tipo
-import type { SupplierFormData } from '../schemas/supplierSchema'; // Importa o schema e o tipo
+import Button from '../components/Button';
+import { supplierSchema , classificationValues} from '../schemas/supplierSchema';
+import type { SupplierFormData } from '../schemas/supplierSchema';
 
 const SupplierRegistrationPage = () => {
   const { register, handleSubmit, formState: { errors }, reset } = useForm<SupplierFormData>({
     resolver: zodResolver(supplierSchema),
     defaultValues: {
       submissionMethods: [],
-      isActive: true, // Por padrão, ativo
+      isActive: true,
     }
   });
 
@@ -33,7 +33,23 @@ const SupplierRegistrationPage = () => {
           {errors.name && <p className="mt-1 text-sm text-red-600">{errors.name.message}</p>}
         </div>      
 
-        {/* Novo campo para o Vendedor */}
+        <div>
+          <label htmlFor="classification" className="block text-sm font-medium text-gray-700">Classificação</label>
+          <select
+            id="classification"
+            {...register('classification')}
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 sm:text-sm p-2"
+          >
+            <option value="">Selecione...</option>
+            {classificationValues.map((value) => (
+              <option key={value} value={value}>
+                {value}
+              </option>
+            ))}
+          </select>
+          {errors.classification && <p className="mt-1 text-sm text-red-600">{errors.classification.message}</p>}
+        </div>
+
         <div>
           <label htmlFor="seller" className="block text-sm font-medium text-gray-700">Nome do Vendedor</label>
           <input
@@ -43,6 +59,33 @@ const SupplierRegistrationPage = () => {
             placeholder="Nome do contato comercial"
           />
           {errors.seller && <p className="mt-1 text-sm text-red-600">{errors.seller.message}</p>}
+        </div>
+        
+        {/* NOVOS CAMPOS: E-mail e WhatsApp */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label htmlFor="email" className="block text-sm font-medium text-gray-700">E-mail</label>
+            <input
+              id="email"
+              type="email"
+              {...register('email')}
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 sm:text-sm p-2"
+              placeholder="contato@empresa.com"
+            />
+            {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>}
+          </div>
+
+          <div>
+            <label htmlFor="whatsapp" className="block text-sm font-medium text-gray-700">WhatsApp</label>
+            <input
+              id="whatsapp"
+              type="tel"
+              {...register('whatsapp')}
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 sm:text-sm p-2"
+              placeholder="(XX) 9XXXX-XXXX"
+            />
+            {errors.whatsapp && <p className="mt-1 text-sm text-red-600">{errors.whatsapp.message}</p>}
+          </div>
         </div>
 
         <div>
