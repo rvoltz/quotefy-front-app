@@ -186,7 +186,7 @@ const QuotationDetailsPage = () => {
     return quotes;
   }, [id]);
 
-  const handleConfirmOrder = (vendorId: string, vendorName: string) => {
+  const handleConfirmOrder = (vendorName: string) => {
     if (window.confirm(`Tem certeza que deseja confirmar o pedido com o fornecedor ${vendorName}?`)) {
       alert(`Simulando a confirmação do pedido com o fornecedor ${vendorName}. Em uma aplicação real, a cotação seria atualizada com o status 'Pedido confirmado' e o ID do fornecedor.`);
       navigate('/cotacoes');
@@ -278,7 +278,7 @@ const QuotationDetailsPage = () => {
                     </div>
                     {/* Botão de confirmação de pedido só aparece se a cotação estiver 'Aberta' */}
                     {quotation.status === 'Aberta' && (
-                       <Button onClick={() => handleConfirmOrder(quote.vendorId, quote.vendorName)} className="flex items-center gap-2">
+                       <Button onClick={() => handleConfirmOrder(quote.vendorName)} className="flex items-center gap-2">
                          <CheckCircle className="h-4 w-4" /> Confirmar Pedido
                        </Button>
                     )}
