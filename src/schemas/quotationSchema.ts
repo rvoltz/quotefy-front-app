@@ -43,7 +43,8 @@ export const quotationSchema = z.object({
     id: z.string(),
     name: z.string(),
   }).optional(),
-  status: quotationStatusEnum
+  status: quotationStatusEnum,
+  confirmedVendorId: z.string().optional()  
 });
 
 // Schema específico para o formulário de criação de nova cotação

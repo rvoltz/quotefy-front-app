@@ -61,7 +61,6 @@ const SupplierRegistrationPage = () => {
           {errors.seller && <p className="mt-1 text-sm text-red-600">{errors.seller.message}</p>}
         </div>
         
-        {/* NOVOS CAMPOS: E-mail e WhatsApp */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label htmlFor="email" className="block text-sm font-medium text-gray-700">E-mail</label>

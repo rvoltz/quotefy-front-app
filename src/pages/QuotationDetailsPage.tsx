@@ -88,8 +88,8 @@ const mockQuotations: Quotation[] = [
     year: 2020,
     engine: '2.0',
     items: [
-      { partName: 'Pastilha de Freio', quantity: 1 },
-      { partName: 'Filtro de Ar', quantity: 1 },
+        { partName: 'Pastilha de Freio', vehicleModel: 'Civic', vehicleYear: 2020, expectedQuotes: 3, receivedQuotes: 1, status: 'em andamento', price: undefined, quantity: 1 },
+        { partName: 'Filtro de Ar', vehicleModel: 'Civic', vehicleYear: 2020, expectedQuotes: 2, receivedQuotes: 0, status: 'pendente', price: undefined, quantity: 1 },
     ],
     status: 'Aberta',
     user: { id: 'u1', name: 'João Silva' }
@@ -101,7 +101,9 @@ const mockQuotations: Quotation[] = [
     model: 'Corolla',
     brand: 'Toyota',
     year: 2021,
-    items: [{ partName: 'Amortecedor Dianteiro', quantity: 2}],
+    items: [
+        { partName: 'Amortecedor Dianteiro', vehicleModel: 'Corolla', vehicleYear: 2021, expectedQuotes: 5, receivedQuotes: 5, status: 'finalizada', price: 550.00, quantity: 2},
+    ],
     status: 'Pedido confirmado',
     confirmedVendorId: 's5', 
     user: { id: 'u2', name: 'Maria Souza' }
@@ -113,7 +115,9 @@ const mockQuotations: Quotation[] = [
     model: 'Onix',
     brand: 'Chevrolet',
     year: 2019,
-    items: [{ partName: 'Vela de Ignição', quantity: 4}],
+    items: [
+     { partName: 'Vela de Ignição', vehicleModel: 'Onix', vehicleYear: 2019, expectedQuotes: 4, receivedQuotes: 2, status: 'em andamento', price: undefined,  quantity: 4},
+    ],
     status: 'Concluida',
     confirmedVendorId: 's1', 
     user: { id: 'u1', name: 'João Silva' }
@@ -125,7 +129,9 @@ const mockQuotations: Quotation[] = [
     model: 'HB20',
     brand: 'Hyundai',
     year: 2022,
-    items: [{ partName: 'Pneu Aro 15', quantity: 4}],
+    items: [
+     { partName: 'Pneu Aro 15', vehicleModel: 'HB20', vehicleYear: 2022, expectedQuotes: 3, receivedQuotes: 3, status: 'finalizada', price: 400.00, quantity: 4},
+    ],
     status: 'Cancelada',
     user: { id: 'u3', name: 'Carlos Pereira' },
   },  
@@ -137,8 +143,8 @@ const mockQuotations: Quotation[] = [
     brand: 'Chevrolet',
     year: 2023,
     items: [
-    { partName: 'Bateria 60Ah', vehicleModel: 'Tracker', vehicleYear: 2023, expectedQuotes: 2, receivedQuotes: 1, status: 'em andamento', price: undefined, quantity: 1 },
-    ],
+        { partName: 'Bateria 60Ah', vehicleModel: 'Tracker', vehicleYear: 2023, expectedQuotes: 2, receivedQuotes: 1, status: 'em andamento', price: undefined, quantity: 1 },
+  ],
     user: { id: 'u2', name: 'Maria Souza' },
     status: 'Aberta'
    }  

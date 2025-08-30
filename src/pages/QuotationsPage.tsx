@@ -2,7 +2,7 @@ import { useState, useMemo, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { PlusCircle, Edit, Trash2, Search, ChevronLeft, ChevronRight } from 'lucide-react';
 import Button from '../components/Button';
-import type { Quotation, quotationStatusEnum } from '../schemas/quotationSchema';
+import type { Quotation } from '../schemas/quotationSchema';
 import type { QuotationItem } from '../schemas/quotationSchema';
 import { format, subDays } from 'date-fns';
 
@@ -243,7 +243,7 @@ const QuotationsPage = () => {
     if (window.confirm(`Tem certeza que deseja cancelar a cotação ${id}?`)) {
       setQuotations(prevQuotations =>
         prevQuotations.map(q =>
-          q.id === id ? { ...q, status: 'Cancelada' as (typeof quotationStatusEnum._type) } : q
+          q.id === id ? { ...q, status: 'Cancelada' } : q
         )
       );
       alert(`Cotação ${id} cancelada.`);
