@@ -1,4 +1,3 @@
-// src/schemas/quotationSchema.ts
 import { z } from 'zod';
 
 
@@ -37,6 +36,10 @@ export const quotationSchema = z.object({
   brand: z.string(),
   year: z.number().optional(),
   engine: z.string().optional(),
+  // NOVOS CAMPOS ADICIONADOS AQUI
+  fuelType: z.string().optional(),
+  chassis: z.string().optional(),
+  notes: z.string().optional(),
   items: z.array(quotationItemSchema).min(1, { message: 'Uma cotação deve ter pelo menos um item.' }),
   selectedVendorIds: z.array(z.string()).min(1, { message: 'Selecione pelo menos um fornecedor.' }).optional(), 
   user: z.object({
@@ -53,14 +56,20 @@ export const quotationSchema = z.object({
 export const newQuotationFormSchema = z.object({  
   licensePlate: z.string().min(1, 'A placa é obrigatória.'),
   model: z.string().optional(),
-  brand: z.string(),
+  brand: z.string().min(1, { message: 'A marca é obrigatória.' }), // Adicionei validação aqui para garantir
   year: z.number().optional(),
   engine: z.string().optional(),
+  // NOVOS CAMPOS ADICIONADOS AQUI
+  fuelType: z.string().optional(),
+  chassis: z.string().optional(),
+  notes: z.string().optional(),
   items: z.array(
     z.object({
       itemDescription: z.string().min(1, 'A descrição da peça é obrigatória.'),
       itemBrand: z.string().optional(),
       quantity: z.number().min(1, 'A quantidade deve ser pelo menos 1.'),
+      // NOVO CAMPO: Checkbox de Linha Premium/Original
+      isPremium: z.boolean().optional(),
     })
   ).min(1, 'Adicione pelo menos uma peça.'),
   selectedVendorGroupId: z.string().min(1, { message: 'Selecione um grupo de fornecedores.' }),

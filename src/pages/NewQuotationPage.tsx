@@ -23,8 +23,11 @@ const NewQuotationPage = () => {
       brand: '',
       year: undefined,
       engine: '',
-      items: [{ itemDescription: '', itemBrand: '', quantity: 1 }],
-      selectedVendorGroupId: '', // Novo campo para o ID do grupo
+      fuelType: '',
+      chassis: '',
+      notes: '',
+      items: [{ itemDescription: '', itemBrand: '', quantity: 1, isPremium: false }], // NOVO: Valor padrão para isPremium
+      selectedVendorGroupId: '',
     }
   });
 
@@ -37,17 +40,13 @@ const NewQuotationPage = () => {
   const [foundByLicensePlate, setFoundByLicensePlate] = useState<boolean | null>(null);
   const [isLoadingVehicleData, setIsLoadingVehicleData] = useState(false);
 
-  // ... (dados mock de veículos, marcas e anos, e as funções `fetchVehicleData`, `useEffect`)
-  
-  // Dados mock de veículos por placa (para simular a resposta da API)
   const mockVehiclesApiData = useMemo(() => ([
-    { licensePlate: 'ABC1234', model: 'Civic', brand: 'Honda', year: 2020, engine: '2.0 Flex' },
-    { licensePlate: 'XYZ5678', model: 'Corolla', brand: 'Toyota', year: 2021, engine: '1.8 Hybrid' },
-    { licensePlate: 'DEF9012', model: 'Onix', brand: 'Chevrolet', year: 2019, engine: '1.0 Turbo' },
-    { licensePlate: 'GHI3456', model: 'HB20', brand: 'Hyundai', year: 2022, engine: '1.0 Aspirado' },
+    { licensePlate: 'ABC1234', model: 'Civic', brand: 'Honda', year: 2020, engine: '2.0 Flex', fuelType: 'Flex', chassis: '123ABCDEF1234567', notes: 'Veículo com histórico de manutenção A.' },
+    { licensePlate: 'XYZ5678', model: 'Corolla', brand: 'Toyota', year: 2021, engine: '1.8 Hybrid', fuelType: 'Gasolina', chassis: 'ABCDEF1234567890', notes: '' },
+    { licensePlate: 'DEF9012', model: 'Onix', brand: 'Chevrolet', year: 2019, engine: '1.0 Turbo', fuelType: 'Gasolina', chassis: '', notes: 'Revisão geral pendente.' },
+    { licensePlate: 'GHI3456', model: 'HB20', brand: 'Hyundai', year: 2022, engine: '1.0 Aspirado', fuelType: 'Flex', chassis: '987FEDCBA6543210', notes: '' },
   ]), []);
 
-  // Dados mock de Marcas para o veículo
   const allBrands = useMemo(() => ([
     { value: 'Honda', label: 'Honda' },
     { value: 'Toyota', label: 'Toyota' },
@@ -57,8 +56,16 @@ const NewQuotationPage = () => {
     { value: 'Volkswagen', label: 'Volkswagen' },
     { value: 'Fiat', label: 'Fiat' },
   ]), []);
+  
+  const fuelTypeOptions = useMemo(() => ([
+    { value: 'Gasolina', label: 'Gasolina' },
+    { value: 'Etanol', label: 'Etanol' },
+    { value: 'Flex', label: 'Flex' },
+    { value: 'Diesel', label: 'Diesel' },
+    { value: 'Elétrico', label: 'Elétrico' },
+    { value: 'Híbrido', label: 'Híbrido' },
+  ]), []);
 
-  // Dados para o campo Ano (últimos 30 anos)
   const allYears = useMemo(() => {
     const currentYear = new Date().getFullYear();
     const years = [];
@@ -69,7 +76,7 @@ const NewQuotationPage = () => {
     return years;
   }, []);
   
-  const fetchVehicleData = useCallback(async (licensePlate: string) => { // Parâmetro renomeado
+  const fetchVehicleData = useCallback(async (licensePlate: string) => {
     setIsLoadingVehicleData(true);
     setFoundByLicensePlate(null); 
     try {
@@ -81,12 +88,18 @@ const NewQuotationPage = () => {
         setValue('brand', foundVehicle.brand);
         setValue('year', foundVehicle.year);
         setValue('engine', foundVehicle.engine);
+        setValue('fuelType', foundVehicle.fuelType);
+        setValue('chassis', foundVehicle.chassis);
+        setValue('notes', foundVehicle.notes);
       } else {
         setFoundByLicensePlate(false);
         setValue('model', '');
         setValue('brand', '');
         setValue('year', undefined);
         setValue('engine', '');
+        setValue('fuelType', '');
+        setValue('chassis', '');
+        setValue('notes', '');
       }
     } catch (error) {
       console.error('Erro ao buscar dados do veículo:', error);
@@ -95,6 +108,9 @@ const NewQuotationPage = () => {
       setValue('brand', '');
       setValue('year', undefined);
       setValue('engine', '');
+      setValue('fuelType', '');
+      setValue('chassis', '');
+      setValue('notes', '');
     } finally {
       setIsLoadingVehicleData(false);
     }
@@ -110,6 +126,9 @@ const NewQuotationPage = () => {
       setValue('brand', '');
       setValue('year', undefined);
       setValue('engine', '');
+      setValue('fuelType', '');
+      setValue('chassis', '');
+      setValue('notes', '');
     }
   }, [enteredLicensePlate, fetchVehicleData, setValue]);
   
@@ -123,7 +142,6 @@ const NewQuotationPage = () => {
 
   const showLowerSections = enteredLicensePlate.trim().length >= 7;
 
-  // Mapeia os dados dos grupos para o formato que o SearchableDropdown espera
   const vendorGroupOptions = useMemo(() => {
     return mockVendorGroups.map(group => ({
       value: group.id,
@@ -136,7 +154,7 @@ const NewQuotationPage = () => {
     <div className="p-6 max-w-4xl mx-auto bg-white rounded-lg shadow-md">
       <h1 className="text-3xl font-bold text-gray-800 mb-6 text-center">Criar Nova Cotação</h1>
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-        {/* ... (Seção de Placa) */}
+        {/* Seção de Placa */}
         <div className="p-4 border rounded-md bg-gray-50">
           <h2 className="text-xl font-semibold text-gray-700 mb-4">1. Informe a Placa</h2>
           <div>
@@ -166,13 +184,14 @@ const NewQuotationPage = () => {
           </div>
         </div>
 
-        {/* ... (Seção de Detalhes do Veículo - Mantém a lógica) */}
+        {/* Seção de Detalhes do Veículo */}
         {showLowerSections && (
           <div className="p-4 border rounded-md bg-gray-50">
             <h2 className="text-xl font-semibold text-gray-700 mb-4">
               {foundByLicensePlate ? '2. Detalhes do Veículo (Carregados)' : '2. Detalhes do Veículo (Preencha Manualmente)'}
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Linha 1 */}
               <div>
                 <label htmlFor="model" className="block text-sm font-medium text-gray-700">Modelo</label>
                 <input
@@ -199,7 +218,10 @@ const NewQuotationPage = () => {
                     />
                   )}
                 />
+                {errors.brand && <p className="mt-1 text-sm text-red-600">{errors.brand.message}</p>}
               </div>
+
+              {/* Linha 2 */}
               <div>
                 <label htmlFor="year" className="block text-sm font-medium text-gray-700">Ano</label>
                 <Controller
@@ -216,6 +238,7 @@ const NewQuotationPage = () => {
                     />
                   )}
                 />
+                {errors.year && <p className="mt-1 text-sm text-red-600">{errors.year.message}</p>}
               </div>
               <div>
                 <label htmlFor="engine" className="block text-sm font-medium text-gray-700">Motor</label>
@@ -226,20 +249,65 @@ const NewQuotationPage = () => {
                   readOnly={foundByLicensePlate === true || isLoadingVehicleData}
                   className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm p-2 ${foundByLicensePlate === true || isLoadingVehicleData ? 'bg-gray-100 cursor-not-allowed' : 'focus:border-orange-500 focus:ring-orange-500'}`}
                 />
+                {errors.engine && <p className="mt-1 text-sm text-red-600">{errors.engine.message}</p>}
               </div>
+
+              {/* Linha 3 */}
+              <div>
+                <label htmlFor="fuelType" className="block text-sm font-medium text-gray-700">Tipo de Combustível</label>
+                <Controller
+                  name="fuelType"
+                  control={control}
+                  render={({ field }) => (
+                    <SearchableDropdown
+                      options={fuelTypeOptions}
+                      value={field.value}
+                      onChange={field.onChange}
+                      placeholder="Selecione o tipo..."
+                      name={field.name}
+                      disabled={foundByLicensePlate === true || isLoadingVehicleData}
+                    />
+                  )}
+                />
+                {errors.fuelType && <p className="mt-1 text-sm text-red-600">{errors.fuelType.message}</p>}
+              </div>
+              <div>
+                <label htmlFor="chassis" className="block text-sm font-medium text-gray-700">Chassi</label>
+                <input
+                  id="chassis"
+                  type="text"
+                  {...register('chassis')}
+                  readOnly={foundByLicensePlate === true || isLoadingVehicleData}
+                  className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm p-2 ${foundByLicensePlate === true || isLoadingVehicleData ? 'bg-gray-100 cursor-not-allowed' : 'focus:border-orange-500 focus:ring-orange-500'}`}
+                  placeholder="Número do chassi (opcional)"
+                />
+              </div>
+
+              {/* Linha 4 */}
+              <div className="md:col-span-2">
+                <label htmlFor="notes" className="block text-sm font-medium text-gray-700">Observações</label>
+                <textarea
+                  id="notes"
+                  {...register('notes')}
+                  rows={3}
+                  className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm p-2 ${foundByLicensePlate === true || isLoadingVehicleData ? 'bg-gray-100 cursor-not-allowed' : 'focus:border-orange-500 focus:ring-orange-500'}`}
+                  placeholder="Informações adicionais sobre o veículo ou a cotação..."
+                />
+              </div>
+
             </div>
           </div>
         )}
 
-        {/* ... (Seção de Adição de Peças) */}
+        {/* Seção de Adição de Peças - Agora com o checkbox */}
         {showLowerSections && (
           <div className="p-4 border rounded-md bg-gray-50">
             <h2 className="text-xl font-semibold text-gray-700 mb-4">3. Adicione as Peças e Quantidades</h2>
             {fields.map((field, index) => (
-              <div key={field.id} className="flex flex-col md:flex-row gap-4 mb-4 p-3 border border-gray-200 rounded-md bg-white items-end">
+              <div key={field.id} className="flex flex-col md:flex-row gap-4 mb-4 p-3 border border-gray-200 rounded-md bg-white items-start md:items-end">
                 {/* Campo de Descrição da Peça */}
                 <div className="w-full md:w-2/5">
-                  <label htmlFor={`items.${index}.itemDescription`} className="block text-sm font-medium text-gray-700">Descrição da Peça</label>
+                  <label htmlFor={`items.${index}.itemDescription`} className="block text-sm font-medium text-gray-700">Descrição</label>
                   <input
                     id={`items.${index}.itemDescription`}
                     type="text"
@@ -250,8 +318,8 @@ const NewQuotationPage = () => {
                   {errors.items?.[index]?.itemDescription && <p className="mt-1 text-sm text-red-600">{errors.items[index].itemDescription?.message}</p>}
                 </div>
                 {/* Campo de Marca da Peça */}
-                <div className="w-full md:w-1/3">
-                  <label htmlFor={`items.${index}.itemBrand`} className="block text-sm font-medium text-gray-700">Marca da Peça (Opcional)</label>
+                <div className="w-full md:w-1/4">
+                  <label htmlFor={`items.${index}.itemBrand`} className="block text-sm font-medium text-gray-700">Marca</label>
                   <input
                     id={`items.${index}.itemBrand`}
                     type="text"
@@ -272,6 +340,17 @@ const NewQuotationPage = () => {
                   />
                   {errors.items?.[index]?.quantity && <p className="mt-1 text-sm text-red-600">{errors.items[index].quantity?.message}</p>}
                 </div>
+                {/* NOVO CAMPO: Checkbox de Linha Premium */}
+                <div className="w-full md:w-auto flex items-center gap-2 mt-2 md:mt-0">
+                  <input
+                    id={`items.${index}.isPremium`}
+                    type="checkbox"
+                    {...register(`items.${index}.isPremium` as const)}
+                    className="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded"
+                  />
+                  <label htmlFor={`items.${index}.isPremium`} className="text-sm font-medium text-gray-700 whitespace-nowrap">Linha Premium/Original</label>
+                </div>
+
                 <Button
                   type="button"
                   onClick={() => remove(index)}
@@ -286,7 +365,7 @@ const NewQuotationPage = () => {
             ))}
             <Button
               type="button"
-              onClick={() => append({ itemDescription: '', itemBrand: '', quantity: 1 })}
+              onClick={() => append({ itemDescription: '', itemBrand: '', quantity: 1, isPremium: false })}
               variant="outline"
               className="mt-4 w-full flex items-center justify-center gap-2 text-orange-700 border-orange-500 hover:bg-orange-50"
             >
@@ -296,7 +375,7 @@ const NewQuotationPage = () => {
           </div>
         )}
 
-        {/* Seleção do Grupo de Fornecedores - NOVO CAMPO */}
+        {/* Seleção do Grupo de Fornecedores */}
         {showLowerSections && fields.length > 0 && (
           <div className="p-4 border rounded-md bg-gray-50">
             <h2 className="text-xl font-semibold text-gray-700 mb-4">4. Selecione o Grupo de Fornecedores</h2>

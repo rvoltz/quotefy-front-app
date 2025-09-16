@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import Button from '../components/Button'; // Importa o Button do novo caminho
+import Button from '../components/Button';
 import type { VehicleFormData } from '../schemas/vehicleSchema'; 
 import { vehicleSchema } from '../schemas/vehicleSchema'; 
 import SearchableDropdown from '../components/SearchableDropdown';
@@ -28,6 +28,16 @@ const VehicleRegistrationPage = () => {
     { value: 'Audi', label: 'Audi' },
     { value: 'Volvo', label: 'Volvo' },
     { value: 'Outra', label: 'Outra' },
+  ], []);
+
+  // NOVAS OPÇÕES: Unificadas com a tela de cotação
+  const fuelTypeOptions = useMemo(() => [
+    { value: 'Gasolina', label: 'Gasolina' },
+    { value: 'Etanol', label: 'Etanol' },
+    { value: 'Flex', label: 'Flex' },
+    { value: 'Diesel', label: 'Diesel' },
+    { value: 'Elétrico', label: 'Elétrico' },
+    { value: 'Híbrido', label: 'Híbrido' },
   ], []);
 
   const onSubmit = (data: VehicleFormData) => {
@@ -99,23 +109,26 @@ const VehicleRegistrationPage = () => {
           {errors.motor && <p className="mt-1 text-sm text-red-600">{errors.motor.message}</p>}
         </div>
 
+        {/* Campo atualizado para usar SearchableDropdown */}
         <div>
           <label htmlFor="combustivel" className="block text-sm font-medium text-gray-700">Tipo de Combustível</label>
-          <select
-            id="combustivel"
-            {...register('combustivel')}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 sm:text-sm p-2"
-          >
-            <option value="">Selecione...</option>
-            <option value="gasolina">Gasolina</option>
-            <option value="alcool">Álcool</option>
-            <option value="flex">Flex</option>
-            <option value="diesel">Diesel</option>
-          </select>
+          <Controller
+            name="combustivel"
+            control={control}
+            render={({ field }) => (
+              <SearchableDropdown
+                options={fuelTypeOptions}
+                value={field.value}
+                onChange={field.onChange}
+                placeholder="Selecione o tipo..."
+                name={field.name}
+              />
+            )}
+          />
           {errors.combustivel && <p className="mt-1 text-sm text-red-600">{errors.combustivel.message}</p>}
         </div>
 
-             {/* Novo Campo: Chassi */}
+        {/* Campo Chassi */}
         <div>
           <label htmlFor="chassi" className="block text-sm font-medium text-gray-700">Chassi</label>
           <input
@@ -127,7 +140,7 @@ const VehicleRegistrationPage = () => {
           {errors.chassi && <p className="mt-1 text-sm text-red-600">{errors.chassi.message}</p>}
         </div>
 
-        {/* Novo campo: Observações (textarea) */}
+        {/* Campo Observações */}
         <div>
           <label htmlFor="observacoes" className="block text-sm font-medium text-gray-700">Observações</label>
           <textarea

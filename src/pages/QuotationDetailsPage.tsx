@@ -1,5 +1,5 @@
 import { useNavigate, useParams } from 'react-router-dom';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import Button from '../components/Button';
 import { ChevronLeft, CheckCircle } from 'lucide-react';
 import type { Quotation } from '../schemas/quotationSchema';
@@ -18,6 +18,16 @@ interface VendorQuote {
   vendorName: string;
   date: string;
   items: VendorQuotationItem[];
+  freightCost: number;
+}
+
+// NOVO: Tipo para rastrear os itens selecionados
+interface SelectedItem {
+  vendorId: string;
+  vendorName: string;
+  partName: string;
+  quantity: number;
+  price: number;
   freightCost: number;
 }
 
@@ -77,7 +87,7 @@ const mockQuotationOffers: Record<string, VendorQuote[]> = {
   ],
 };
 
-// Dados mockados de cotações com os novos campos 'status' e 'confirmedVendorId'
+// Dados mockados de cotações
 const mockQuotations: Quotation[] = [
   {
     id: 'q1',
@@ -169,6 +179,8 @@ const getStatusBadgeColor = (status: string) => {
 const QuotationDetailsPage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  // Estado para rastrear os itens selecionados para o pedido final
+  const [selectedItems, setSelectedItems] = useState<SelectedItem[]>([]);
 
   const quotation = useMemo(() => mockQuotations.find(q => q.id === id), [id]);
   const vendorQuotes: VendorQuote[] | undefined = useMemo(() => {
@@ -186,9 +198,40 @@ const QuotationDetailsPage = () => {
     return quotes;
   }, [id]);
 
-  const handleConfirmOrder = (vendorName: string) => {
-    if (window.confirm(`Tem certeza que deseja confirmar o pedido com o fornecedor ${vendorName}?`)) {
-      alert(`Simulando a confirmação do pedido com o fornecedor ${vendorName}. Em uma aplicação real, a cotação seria atualizada com o status 'Pedido confirmado' e o ID do fornecedor.`);
+  const handleSelectItem = (quote: VendorQuote, item: VendorQuotationItem, isChecked: boolean) => {
+    // A nova lógica é: se um item for selecionado, ele substitui qualquer outra seleção para aquela mesma peça.
+    setSelectedItems(prevItems => {
+      const updatedItems = prevItems.filter(si => si.partName !== item.partName);
+
+      if (isChecked) {
+        return [...updatedItems, { ...item, vendorId: quote.vendorId, vendorName: quote.vendorName, freightCost: quote.freightCost }];
+      } else {
+        return updatedItems;
+      }
+    });
+  };
+
+  const calculateTotalPrice = useMemo(() => {
+    const totalByVendor: Record<string, { total: number; freight: number }> = {};
+    selectedItems.forEach(item => {
+      if (!totalByVendor[item.vendorId]) {
+        totalByVendor[item.vendorId] = { total: 0, freight: item.freightCost };
+      }
+      totalByVendor[item.vendorId].total += item.price * item.quantity;
+    });
+
+    let finalPrice = 0;
+    for (const vendorId in totalByVendor) {
+      finalPrice += totalByVendor[vendorId].total + totalByVendor[vendorId].freight;
+    }
+    return finalPrice;
+  }, [selectedItems]);
+  
+  const handleConfirmOrder = () => {
+    if (window.confirm('Tem certeza que deseja confirmar o pedido com os itens selecionados?')) {
+      console.log('Pedido Final:', selectedItems);
+      alert('Pedido confirmado! (Verifique o console para os itens selecionados)');
+      // Em uma aplicação real, aqui você faria uma chamada API para persistir o pedido.
       navigate('/cotacoes');
     }
   };
@@ -253,19 +296,20 @@ const QuotationDetailsPage = () => {
               const totalQuotePrice = partsSubtotal + quote.freightCost;
               const isBestOffer = index === 0;
 
-              // NOVO: Lógica condicional para o badge
+              // Lógica condicional para o badge
               const isConfirmedOffer = (quotation.status === 'Pedido confirmado' || quotation.status === "Concluida") && quotation.confirmedVendorId === quote.vendorId;
               
+              // Verificação se algum item do fornecedor atual está selecionado para o pedido final
+              const isAnyItemSelected = selectedItems.some(si => si.vendorId === quote.vendorId);
+              
               return (
-                <li key={quote.vendorId} className={`flex flex-col p-4 border rounded-md shadow-sm relative ${isConfirmedOffer ? 'bg-green-50' : isBestOffer ? 'bg-orange-50' : 'bg-gray-50'}`}>
+                <li key={quote.vendorId} className={`flex flex-col p-4 border rounded-md shadow-sm relative ${isConfirmedOffer ? 'bg-green-50' : isAnyItemSelected ? 'bg-indigo-50' : isBestOffer ? 'bg-orange-50' : 'bg-gray-50'}`}>
                   
                   {isConfirmedOffer ? (
-                    // Badge para pedido confirmado
                     <div className="absolute -top-3 -right-3 bg-green-600 text-white text-xs font-semibold px-3 py-1 rounded-full shadow-md">
                       Pedido Confirmado
                     </div>
                   ) : isBestOffer && quotation.status === 'Aberta' ? (
-                    // Badge de melhor preço, apenas se a cotação estiver 'Aberta'
                     <div className="absolute -top-3 -right-3 bg-orange-500 text-white text-xs font-semibold px-3 py-1 rounded-full shadow-md">
                       Melhor Preço
                     </div>
@@ -276,22 +320,32 @@ const QuotationDetailsPage = () => {
                       <p className="text-lg font-semibold text-gray-900">{quote.vendorName}</p>
                       <p className="text-xs text-gray-500">Enviado em: {formatDate(quote.date)}</p>
                     </div>
-                    {/* Botão de confirmação de pedido só aparece se a cotação estiver 'Aberta' */}
-                    {quotation.status === 'Aberta' && (
-                       <Button onClick={() => handleConfirmOrder(quote.vendorName)} className="flex items-center gap-2">
-                         <CheckCircle className="h-4 w-4" /> Confirmar Pedido
-                       </Button>
-                    )}
                   </div>
                   <div className="border-t border-gray-200 pt-4">
                     <h3 className="text-sm font-medium text-gray-700 mb-2">Detalhes da Cotação:</h3>
                     <ul className="space-y-2 text-sm text-gray-800">
-                      {quote.items.map((item, itemIndex) => (
-                        <li key={itemIndex} className="flex justify-between">
-                          <span>{item.partName} ({item.quantity} un.)</span>
-                          <span className="font-medium text-orange-600">R$ {(item.price * item.quantity).toFixed(2)}</span>
-                        </li>
-                      ))}
+                      {quote.items.map((item, itemIndex) => {
+                        const isSelected = selectedItems.some(si => si.partName === item.partName && si.vendorId === quote.vendorId);
+                        const isOtherVendorSelected = selectedItems.some(si => si.partName === item.partName && si.vendorId !== quote.vendorId);
+                        
+                        return (
+                          <li key={itemIndex} className={`flex justify-between items-center ${isOtherVendorSelected ? 'opacity-50' : ''}`}>
+                            <div className="flex items-center">
+                              {quotation.status === 'Aberta' && (
+                                <input
+                                  type="checkbox"
+                                  className="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded mr-2"
+                                  onChange={(e) => handleSelectItem(quote, item, e.target.checked)}
+                                  checked={isSelected}
+                                  disabled={isOtherVendorSelected} // Desabilita a seleção se já estiver selecionado de outro fornecedor
+                                />
+                              )}
+                              <span>{item.partName} ({item.quantity} un.)</span>
+                            </div>
+                            <span className="font-medium text-orange-600">R$ {(item.price * item.quantity).toFixed(2)}</span>
+                          </li>
+                        );
+                      })}
                       <li className="flex justify-between font-semibold border-t border-gray-300 pt-2 mt-2">
                         <span>Frete</span>
                         <span className="text-gray-900">R$ {quote.freightCost.toFixed(2)}</span>
@@ -310,6 +364,36 @@ const QuotationDetailsPage = () => {
           <p className="text-gray-500">Ainda não há ofertas para esta cotação.</p>
         )}
       </div>
+
+      {/* NOVO: Painel de Pedido Final */}
+      {quotation.status === 'Aberta' && selectedItems.length > 0 && (
+        <div className="fixed bottom-0 left-0 right-0 bg-white p-4 shadow-lg border-t border-gray-200">
+          <div className="max-w-4xl mx-auto flex justify-between items-center">
+            <div>
+              <h3 className="text-lg font-bold text-gray-900 mb-2">Seu Pedido Final</h3>
+              <p className="text-sm text-gray-600">
+                {selectedItems.map((item, index) => (
+                  <span key={index} className="mr-2">
+                    {item.partName} de **{item.vendorName}**
+                    {index < selectedItems.length - 1 ? ', ' : ''}
+                  </span>
+                ))}
+              </p>
+            </div>
+            <div className="flex items-center gap-4">
+              <div className="text-right">
+                <span className="block text-sm text-gray-500">Preço Total Estimado:</span>
+                <span className="block text-2xl font-bold text-green-700">
+                  R$ {calculateTotalPrice.toFixed(2)}
+                </span>
+              </div>
+              <Button onClick={handleConfirmOrder} className="flex items-center gap-2">
+                <CheckCircle className="h-5 w-5" /> Confirmar Pedido
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
