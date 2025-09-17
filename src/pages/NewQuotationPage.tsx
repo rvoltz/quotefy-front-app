@@ -261,7 +261,7 @@ const NewQuotationPage = () => {
                   render={({ field }) => (
                     <SearchableDropdown
                       options={fuelTypeOptions}
-                      value={field.value}
+                      value={field.value ? String(field.value) : ""}
                       onChange={field.onChange}
                       placeholder="Selecione o tipo..."
                       name={field.name}
