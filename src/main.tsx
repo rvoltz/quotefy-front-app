@@ -1,13 +1,13 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { HashRouter } from 'react-router-dom'; // Importe HashRouter
 import App from './App.tsx';
-import './index.css'; // Certifique-se de que este caminho está correto
+import './index.css';
+import { BrowserRouter } from 'react-router-dom';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <HashRouter> {/* Envolva o App com HashRouter */}
+    <BrowserRouter basename="/quotefy-front-app">
       <App />
-    </HashRouter>
+    </BrowserRouter>
   </React.StrictMode>,
 );
