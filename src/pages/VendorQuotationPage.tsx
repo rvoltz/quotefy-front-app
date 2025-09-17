@@ -101,7 +101,7 @@ const VendorQuotationPage = () => {
           setItemData(initialItemData);
         }
       } catch (err) {
-        setError('Ocorreu um erro ao carregar a cotação.');
+        setError('Ocorreu um erro ao carregar a cotação.' + err);
       } finally {
         setLoading(false);
       }
