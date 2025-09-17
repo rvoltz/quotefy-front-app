@@ -34,6 +34,7 @@ interface VendorResponse {
   freightCost: number;
 }
 
+
 const mockFetchQuotation = (token: string): Promise<QuotationRequest | null> => {
   return new Promise(resolve => {
     setTimeout(() => {
