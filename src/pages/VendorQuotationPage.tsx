@@ -34,7 +34,6 @@ interface VendorResponse {
   freightCost: number;
 }
 
-
 const mockFetchQuotation = (token: string): Promise<QuotationRequest | null> => {
   return new Promise(resolve => {
     setTimeout(() => {
@@ -75,6 +74,8 @@ const VendorQuotationPage = () => {
   const [error, setError] = useState('');
   const [itemData, setItemData] = useState<Record<string, { unitPrice: number; brand: string }>>({});
   const [freight, setFreight] = useState(0);
+  // NOVO: Estado para o checkbox
+  const [isFreightCourtesy, setIsFreightCourtesy] = useState(false);
   const [vendorName, setVendorName] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -118,6 +119,24 @@ const VendorQuotationPage = () => {
       },
     }));
   };
+  
+  // NOVO: Adicionei a função para lidar com a mudança do checkbox
+  const handleFreightCourtesyChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const isChecked = e.target.checked;
+    setIsFreightCourtesy(isChecked);
+    if (isChecked) {
+        setFreight(0); // Zera o frete se o checkbox estiver marcado
+    }
+  };
+  
+  // NOVO: Adicionei a função para lidar com a mudança do frete, desmarcando o checkbox
+  const handleFreightChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = parseFloat(e.target.value.replace(',', '.')) || 0;
+    setFreight(value);
+    if (value > 0) {
+        setIsFreightCourtesy(false); // Desmarca o checkbox se o frete for maior que zero
+    }
+  };
 
   const handleSubmit = async () => {
     if (!quotation) return;
@@ -147,7 +166,8 @@ const VendorQuotationPage = () => {
         totalPrice: itemData[item.partName].unitPrice * item.quantity,
         brand: itemData[item.partName].brand,
       })),
-      freightCost: freight,
+      // NOVO: O custo do frete é 0 se for cortesia
+      freightCost: isFreightCourtesy ? 0 : freight,
     };
     console.log('Dados a serem enviados:', vendorResponse);
     try {
@@ -264,10 +284,27 @@ const VendorQuotationPage = () => {
                 inputMode="decimal"
                 pattern="[0-9]*[.,]?[0-9]*"
                 value={freight === 0 ? '' : freight.toString().replace('.', ',')}
-                onChange={(e) => setFreight(parseFloat(e.target.value.replace(',', '.')) || 0)}
+                // NOVO: Adiciona o manipulador de eventos para o frete
+                onChange={handleFreightChange}
                 className="w-32 border border-gray-300 rounded-md py-2 px-3 text-right text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 placeholder="0,00"
+                // NOVO: Desabilita o input se o frete for cortesia
+                disabled={isFreightCourtesy}
               />
+            </div>
+            {/* NOVO: Checkbox para Frete Cortesia */}
+            <div className="flex items-center ml-4">
+                <input 
+                    id="frete-cortesia"
+                    name="frete-cortesia"
+                    type="checkbox"
+                    className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                    checked={isFreightCourtesy}
+                    onChange={handleFreightCourtesyChange}
+                />
+                <label htmlFor="frete-cortesia" className="ml-2 block text-sm text-gray-700">
+                    Frete Cortesia
+                </label>
             </div>
           </div>
         </div>
