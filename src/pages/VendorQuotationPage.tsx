@@ -166,7 +166,6 @@ const VendorQuotationPage = () => {
         totalPrice: itemData[item.partName].unitPrice * item.quantity,
         brand: itemData[item.partName].brand,
       })),
-      // NOVO: O custo do frete é 0 se for cortesia
       freightCost: isFreightCourtesy ? 0 : freight,
     };
     console.log('Dados a serem enviados:', vendorResponse);
