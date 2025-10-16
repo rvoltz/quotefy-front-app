@@ -1,22 +1,55 @@
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Button from '../components/Button';
-import { supplierSchema , classificationValues} from '../schemas/supplierSchema';
+import ToastMessage from '../components/ToastMessage';
+import { supplierSchema } from '../schemas/supplierSchema';
+import { createSupplier } from '../services/supplierService';
+import { CLASSIFICATION_OPTIONS } from '../constants/supplierConstants'; // 👈 Importa opções em Português/Inglês
 import type { SupplierFormData } from '../schemas/supplierSchema';
+import { Loader2 } from 'lucide-react';
+import ConfigParams from '../constants/config';
+
+type ToastState = {
+  message: string;
+  type: 'success' | 'error';
+} | null;
 
 const SupplierRegistrationPage = () => {
-  const { register, handleSubmit, formState: { errors }, reset } = useForm<SupplierFormData>({
+  const navigate = useNavigate();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [toast, setToast] = useState<ToastState>(null); 
+
+  const { 
+    register, 
+    handleSubmit, 
+    formState: { errors } 
+  } = useForm<SupplierFormData>({
     resolver: zodResolver(supplierSchema),
     defaultValues: {
       submissionMethods: [],
-      isActive: true,
+      isActive: true
     }
   });
 
-  const onSubmit = (data: SupplierFormData) => {
-    console.log('Dados do Fornecedor:', data);
-    alert('Fornecedor cadastrado com sucesso! (Verifique o console para os dados)');
-    reset();
+  const handleCloseToast = () => setToast(null);
+
+  const onSubmit = async (data: SupplierFormData) => {
+    setIsSubmitting(true);
+    setToast(null); 
+    try {
+      await createSupplier(data);
+      setToast({ message: '✅ Fornecedor cadastrado com sucesso!', type: 'success' });
+      
+      setTimeout(() => navigate('/fornecedores'), ConfigParams.DELAY_AFTER_SAVE); 
+
+    } catch (error) {
+      console.error('Erro ao cadastrar fornecedor:', error);
+      const errorMessage = '❌ Falha ao cadastrar. Verifique a conexão ou os dados.';
+      
+      setToast({ message: errorMessage, type: 'error' });
+    }
   };
 
   return (
@@ -41,9 +74,9 @@ const SupplierRegistrationPage = () => {
             className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 sm:text-sm p-2"
           >
             <option value="">Selecione...</option>
-            {classificationValues.map((value) => (
-              <option key={value} value={value}>
-                {value}
+            {CLASSIFICATION_OPTIONS.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
               </option>
             ))}
           </select>
@@ -124,10 +157,23 @@ const SupplierRegistrationPage = () => {
           <label htmlFor="isActive" className="ml-2 block text-sm text-gray-900">Fornecedor Ativo</label>
         </div>
 
-        <Button type="submit" className="w-full">
-          Cadastrar Fornecedor
+        <Button type="submit" className="w-full" disabled={isSubmitting}>
+          {isSubmitting ? (
+            <span className="flex items-center justify-center">
+              <Loader2 className="h-5 w-5 animate-spin mr-2" /> Cadastrando...
+            </span>
+          ) : (
+            'Cadastrar Fornecedor'
+          )}
         </Button>
       </form>
+      {toast && (
+        <ToastMessage
+          message={toast.message}
+          type={toast.type}
+          onClose={handleCloseToast}
+        />
+      )}
     </div>
   );
 };

@@ -1,5 +1,8 @@
-import { Bell, LogOut, User, Menu } from 'lucide-react';
+import { Bell, User, Menu } from 'lucide-react';
 import Button from './components/Button'; 
+import UserMenu from './components/UserMenu'; 
+
+const BASE_URL_ASSET = import.meta.env.BASE_URL;
 
 interface HeaderProps {
   onMenuClick: () => void;
@@ -13,7 +16,7 @@ const Header = ({ onMenuClick }: HeaderProps) => {
         <div className="flex items-center gap-2 text-xl font-bold text-orange-700">
           <img
             key="quotefy-logo"
-            src="/logo_quotefy.png"
+            src={`${BASE_URL_ASSET}logo_quotefy.png`}
             alt="Quotefy Logo"
             className="h-8 w-8 rounded-md"
             onError={(e) => { e.currentTarget.src = 'https://placehold.co/40x40/FF9933/FFFFFF?text=Logo'; }}
@@ -41,10 +44,8 @@ const Header = ({ onMenuClick }: HeaderProps) => {
           <Button variant="ghost" size="icon">
             <User className="h-5 w-5" />
             <span className="sr-only">Perfil</span>
-          </Button>
-          <Button variant="outline" className="text-orange-700 border-orange-500 hover:bg-orange-50">
-            <LogOut className="mr-2 h-4 w-4" /> Sair
-          </Button>
+          </Button>         
+          <UserMenu /> 
         </nav>
       </div>
     </header>
