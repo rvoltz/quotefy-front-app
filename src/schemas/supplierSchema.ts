@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import type { ShippingModeValue } from '../constants/supplierConstants';
 
 import { 
     CLASSIFICATION_VALUES_BACKEND} from '../constants/supplierConstants'; 
@@ -51,3 +52,35 @@ export const supplierSchema = z.object({
 });
 
 export type SupplierFormData = z.infer<typeof supplierSchema>;
+
+export interface Supplier {
+  id: number;
+  name: string;
+  sellerName: string;
+  shippingModes: ShippingModeValue[];
+  classification: string;
+  email: string;
+  whatsapp: string;
+  active: boolean;
+}
+
+export interface GetSuppliersParams {
+  name?: string;
+  page: number; // 0-based index
+  size: number;
+}
+
+export interface SupplierCreationPayload {
+    name: string;
+    shippingModes: ShippingModeValue[]; 
+    classification: string;       
+    email?: string;
+    whatsapp?: string;
+    active: boolean;        
+    sellerName?: string;  
+}
+
+export interface SelectorSupplier {
+  id: string; // ID como string para uso no Formulário/Selector
+  name: string;
+}

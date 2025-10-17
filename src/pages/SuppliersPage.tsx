@@ -1,8 +1,8 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { PlusCircle, Edit, Trash2, Loader2 } from 'lucide-react';
+import { PlusCircle, Edit, Trash2, Loader2, Eye } from 'lucide-react';
 import { getSuppliers, deleteSupplier } from '../services/supplierService'; 
-import type { Supplier } from '../services/supplierService';
+import type { Supplier } from '../schemas/supplierSchema';
 import type { AxiosError } from 'axios';
 import PageParams from '../constants/page'; 
 import ConfirmationModal from '../components/ConfirmationModal';
@@ -116,6 +116,11 @@ const SuppliersPage = () => {
     setIsModalOpen(true);
   };
 
+  const handleView = (id: number) => {
+    navigate(`/visualizar-fornecedor/${id}`);
+  };
+
+
   const confirmDelete = async () => {
     if (!supplierToDeleteId) return;
 
@@ -204,6 +209,13 @@ const SuppliersPage = () => {
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-left text-sm font-medium">
+                      <button
+                        onClick={() => handleView(supplier.id)}
+                        className="p-2 rounded-full text-blue-600 hover:text-blue-800 hover:bg-blue-100 mr-2 transition disabled:opacity-50"
+                        disabled={isLoading}
+                      >
+                        <Eye className="h-4 w-4" />
+                      </button>
                       <button
                         onClick={() => handleEdit(supplier.id)}
                         className="p-2 rounded-full text-indigo-600 hover:text-indigo-800 hover:bg-indigo-100 mr-2 transition disabled:opacity-50"

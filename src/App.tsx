@@ -24,7 +24,10 @@ const PartRegistrationPage = React.lazy(() => import('./pages/PartRegistrationPa
 const SuppliersPage = React.lazy(() => import('./pages/SuppliersPage'));
 const SupplierRegistrationPage = React.lazy(() => import('./pages/SupplierRegistrationPage'));
 const SupplierGroupsPage = React.lazy(() => import('./pages/SupplierGroupPage'));
+const SupplierViewPage = React.lazy(() => import('./pages/SupplierViewPage'));
 const SupplierGroupRegistrationPage = React.lazy(() => import('./pages/SupplierGroupRegistrationPage'));
+const SupplierGroupEditPage = React.lazy(() => import('./pages/SupplierGroupEditPage'));
+const SupplierGroupViewPage = React.lazy(() => import('./pages/SupplierGroupViewPage'));
 const QuotationDetailsPage = React.lazy(() => import('./pages/QuotationDetailsPage'));
 const LoginPage = React.lazy(() => import('./pages/LoginPage'));
 const VendorQuotationPage = React.lazy(() => import('./pages/VendorQuotationPage')); 
@@ -62,8 +65,11 @@ function App() {
           <Route path="/fornecedores" element={suspenseWrapper(SuppliersPage)} />
           <Route path="/cadastro-fornecedor" element={suspenseWrapper(SupplierRegistrationPage)} />
           <Route path="/editar-fornecedor/:id" element={suspenseWrapper(SupplierEditPage)} />
-          <Route path="/grupos-fornecedores" element={suspenseWrapper(SupplierGroupsPage)} />
+          <Route path="/visualizar-fornecedor/:id" element={suspenseWrapper(SupplierViewPage)} />
+          <Route path="/grupos-fornecedores" element={suspenseWrapper(SupplierGroupsPage)} />          
+          <Route path="/editar-grupo-fornecedor/:groupId" element={<SupplierGroupEditPage />} />
           <Route path="/cadastro-grupo-fornecedor" element={suspenseWrapper(SupplierGroupRegistrationPage)} />
+          <Route path="/visualizar-grupo-fornecedor/:groupId" element={suspenseWrapper(SupplierGroupViewPage)} />
           <Route path="/cotacoes/:id" element={suspenseWrapper(QuotationDetailsPage)} />
         </Route>
         

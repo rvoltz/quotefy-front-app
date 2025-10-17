@@ -8,7 +8,7 @@ import { supplierSchema } from '../schemas/supplierSchema';
 import type { SupplierFormData } from '../schemas/supplierSchema';
 import { fetchSupplier, updateSupplier } from '../services/supplierService';
 import { CLASSIFICATION_OPTIONS } from '../constants/supplierConstants';
-import { Loader2 } from 'lucide-react';
+import { Loader2, ArrowLeft } from 'lucide-react';
 import ToastMessage from '../components/ToastMessage';
 import ConfigParams from '../constants/config';
 
@@ -35,6 +35,10 @@ const SupplierEditPage = () => {
   });
 
   const handleCloseToast = () => setToast(null);
+
+  const handleGoBack = () => {
+    navigate('/fornecedores');
+  };
 
   useEffect(() => {
     async function loadSupplierData() {
@@ -92,9 +96,14 @@ const SupplierEditPage = () => {
 
   return (
     <div className="p-6 max-w-2xl mx-auto bg-white rounded-lg shadow-md">
-      <h1 className="text-3xl font-bold text-gray-800 mb-6 text-center">
-        Editar Fornecedor (ID: {id})
-      </h1>
+     <div className="flex justify-between items-center mb-6 border-b pb-4">
+        <h1 className="text-3xl font-bold text-gray-800 mb-6 text-center">
+          Editar Fornecedor (ID: {id})
+        </h1>
+        <Button onClick={handleGoBack} className="mt-4">
+                  <ArrowLeft className="h-5 w-5 mr-2" /> Voltar
+              </Button>
+        </div>
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
         <div>
           <label htmlFor="name" className="block text-sm font-medium text-gray-700">Nome</label>

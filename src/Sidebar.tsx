@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
-import { ReceiptText, Car, Wrench, Users, Group } from 'lucide-react';
-import Sheet from './components/Sheet'; // Importa o Sheet do novo caminho
+import { ReceiptText, Car, Users, Group } from 'lucide-react';
+import Sheet from './components/Sheet';
 
 interface SidebarProps {
   isMobileOpen: boolean;
@@ -11,7 +11,7 @@ const Sidebar = ({ isMobileOpen, onClose }: SidebarProps) => {
   const navItems = [
     { name: 'Cotações', icon: ReceiptText, path: '/cotacoes' },
     { name: 'Veículos', icon: Car, path: '/veiculos' },
-    { name: 'Peças', icon: Wrench, path: '/pecas' },
+    //{ name: 'Peças', icon: Wrench, path: '/pecas' },
     { name: 'Fornecedores', icon: Users, path: '/fornecedores' },
     { name: 'Grupos de Fornecedores', icon: Group, path: '/grupos-fornecedores' },
   ];

@@ -41,7 +41,7 @@ const LoginPage = () => {
         <div className="bg-white p-8 rounded-xl shadow-2xl border border-gray-200">
           
           <div className="text-center mb-6">
-            <h1 className="text-3xl font-extrabold text-blue-600">Quotefy</h1>
+            <h1 className="text-3xl font-extrabold text-orange-600">Quotefy</h1>
             <p className="text-sm text-gray-500 mt-2">
               Faça login para acessar o painel de cotações.
             </p>

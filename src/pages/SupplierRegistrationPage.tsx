@@ -8,7 +8,7 @@ import { supplierSchema } from '../schemas/supplierSchema';
 import { createSupplier } from '../services/supplierService';
 import { CLASSIFICATION_OPTIONS } from '../constants/supplierConstants'; // 👈 Importa opções em Português/Inglês
 import type { SupplierFormData } from '../schemas/supplierSchema';
-import { Loader2 } from 'lucide-react';
+import { Loader2, ArrowLeft } from 'lucide-react';
 import ConfigParams from '../constants/config';
 
 type ToastState = {
@@ -35,6 +35,10 @@ const SupplierRegistrationPage = () => {
 
   const handleCloseToast = () => setToast(null);
 
+  const handleGoBack = () => {
+    navigate('/fornecedores');
+  };
+
   const onSubmit = async (data: SupplierFormData) => {
     setIsSubmitting(true);
     setToast(null); 
@@ -54,7 +58,13 @@ const SupplierRegistrationPage = () => {
 
   return (
     <div className="p-6 max-w-2xl mx-auto bg-white rounded-lg shadow-md">
-      <h1 className="text-3xl font-bold text-gray-800 mb-6 text-center">Cadastro de Fornecedor</h1>
+       <div className="flex justify-between items-center mb-6 border-b pb-4">
+        <h1 className="text-3xl font-bold text-gray-800 mb-6 text-center">Cadastro de Fornecedor</h1>
+         <Button onClick={handleGoBack} className="group">
+          <ArrowLeft className="h-5 w-5 mr-2 transition-transform group-hover:-translate-x-1" /> Voltar
+        </Button>
+      </div>
+
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
         <div>
           <label htmlFor="name" className="block text-sm font-medium text-gray-700">Nome</label>

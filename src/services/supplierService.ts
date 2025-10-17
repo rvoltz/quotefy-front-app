@@ -1,69 +1,11 @@
 import { api } from './api'; 
 import type { AxiosError } from 'axios';
-import type { SupplierFormData } from '../schemas/supplierSchema';
-import { CLASSIFICATION_VALUES_BACKEND } from '../constants/supplierConstants'; 
+import type { SupplierFormData, GetSuppliersParams, Supplier, SupplierCreationPayload, SelectorSupplier} from '../schemas/supplierSchema';
 import type { ShippingModeValue } from '../constants/supplierConstants';
+import type { PageableResponse} from '../schemas/page';
+import { CLASSIFICATION_VALUES_BACKEND } from '../constants/supplierConstants'; 
 
-export type SupplierClassification= typeof CLASSIFICATION_VALUES_BACKEND[number];
-
-export interface Supplier {
-  id: number;
-  name: string;
-  sellerName: string;
-  shippingModes: ShippingModeValue[];
-  classification: string;
-  email: string;
-  whatsapp: string;
-  active: boolean;
-}
-
-export interface PageableResponse<T> {
-  content: T[];
-  totalElements: number;
-  totalPages: number;
-  number: number; 
-  size: number;
-  last: boolean;
-  first: boolean;
-  empty: boolean;
-}
-
-interface GetSuppliersParams {
-  name?: string;
-  page: number; // 0-based index
-  size: number;
-}
-
-export interface SupplierCreationPayload {
-    name: string;
-    shippingModes: ShippingModeValue[]; 
-    classification: string;       
-    email?: string;
-    whatsapp?: string;
-    active: boolean;        
-    sellerName?: string;  
-}
-
-export const getSuppliers = async (
-  params: GetSuppliersParams
-): Promise<PageableResponse<Supplier>> => {
-  try {
-    const response = await api.get<PageableResponse<Supplier>>('api/suppliers', {
-      params: {
-        name: params.name,
-        page: params.page,
-        size: params.size,
-      },
-    });
-
-    return response.data;
-  } catch (error) {
-    const axiosError = error as AxiosError;
-    console.error('Erro ao buscar fornecedores:', axiosError.message);
-    throw error;
-  }
-};
-
+const SUPPLIER_URL = 'api/suppliers'; 
 
 const mapFormDataToPayload = (data: SupplierFormData): SupplierCreationPayload => {
     const shippingModes = data.submissionMethods.map(mode => mode.toUpperCase()) as ShippingModeValue[];
@@ -93,22 +35,59 @@ const mapSupplierToFormData = (supplier: Supplier): SupplierFormData => {
     };
 };
 
+export type SupplierClassification= typeof CLASSIFICATION_VALUES_BACKEND[number];
+
+export const getSuppliers = async (
+  params: GetSuppliersParams
+): Promise<PageableResponse<Supplier>> => {
+  try {
+    const response = await api.get<PageableResponse<Supplier>>(SUPPLIER_URL, {
+      params: {
+        name: params.name,
+        page: params.page,
+        size: params.size,
+      },
+    });
+
+    return response.data;
+  } catch (error) {
+    const axiosError = error as AxiosError;
+    console.error('Erro ao buscar fornecedores:', axiosError.message);
+    throw error;
+  }
+};
+
+export const getSuppliersForSelector = async (): Promise<SelectorSupplier[]> => {
+  try {
+
+    const response = await api.get<Supplier[]>(`${SUPPLIER_URL}/actives`);
+
+    return response.data.map(supplier => ({
+      id: String(supplier.id),
+      name: supplier.name,
+    }));
+  } catch (error) {
+    const axiosError = error as AxiosError;
+    console.error('Erro ao buscar lista de fornecedores para o seletor:', axiosError.message);
+    return []; 
+  }
+};
+
 export async function fetchSupplier(id: number): Promise<SupplierFormData> {
-    const response = await api.get<Supplier>(`api/suppliers/${id}`);
+    const response = await api.get<Supplier>(`${SUPPLIER_URL}/${id}`);
     return mapSupplierToFormData(response.data);
 }
 
-
 export async function createSupplier(data: SupplierFormData): Promise<void> {
     const payload = mapFormDataToPayload(data);
-    await api.post('api/suppliers', payload);
+    await api.post(SUPPLIER_URL, payload);
 }
 
 export async function updateSupplier(id: number, data: SupplierFormData): Promise<void> {
     const payload = mapFormDataToPayload(data);
-    await api.put(`api/suppliers/${id}`, payload);
+    await api.put(`${SUPPLIER_URL}/${id}`, payload);
 }
 
 export async function deleteSupplier(id: number): Promise<void> {
-    await api.delete(`api/suppliers/${id}`);
+    await api.delete(`${SUPPLIER_URL}/${id}`);
 }
