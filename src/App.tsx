@@ -18,7 +18,6 @@ const HomePage = React.lazy(() => import('./pages/HomePage'));
 const QuotationsPage = React.lazy(() => import('./pages/QuotationsPage'));
 const NewQuotationPage = React.lazy(() => import('./pages/NewQuotationPage'));
 const VehiclesPage = React.lazy(() => import('./pages/VehiclesPage'));
-const VehicleRegistrationPage = React.lazy(() => import('./pages/VehicleRegistrationPage'));
 const PartsPage = React.lazy(() => import('./pages/PartsPage'));
 const PartRegistrationPage = React.lazy(() => import('./pages/PartRegistrationPage'));
 const SuppliersPage = React.lazy(() => import('./pages/SuppliersPage'));
@@ -59,7 +58,6 @@ function App() {
           <Route path="/cotacoes" element={suspenseWrapper(QuotationsPage)} />
           <Route path="/nova-cotacao" element={suspenseWrapper(NewQuotationPage)} />
           <Route path="/veiculos" element={suspenseWrapper(VehiclesPage)} />
-          <Route path="/cadastro-veiculo" element={suspenseWrapper(VehicleRegistrationPage)} />
           <Route path="/pecas" element={suspenseWrapper(PartsPage)} />
           <Route path="/cadastro-peca" element={suspenseWrapper(PartRegistrationPage)} />
           <Route path="/fornecedores" element={suspenseWrapper(SuppliersPage)} />

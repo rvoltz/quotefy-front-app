@@ -18,3 +18,52 @@ export const vehicleSchema = z.object({
 });
 
 export type VehicleFormData = z.infer<typeof vehicleSchema>;
+
+export type VehicleBrand = 
+    | 'TOYOTA' | 'HONDA' | 'FORD' | 'GM' | 'NISSAN' | 'VOLKSWAGEN' 
+    | 'HYUNDAI' | 'KIA' | 'MAZDA' | 'SUBARU' | 'JEEP' | 'AUDI' 
+    | 'BMW' | 'MERCEDES_BENZ' | 'LEXUS' | 'VOLVO' | 'FIAT' 
+    | 'RENAULT' | 'PEUGEOT' | 'CITROEN';
+
+export const getAvailableBrands = (): VehicleBrand[] => ([
+    'TOYOTA', 'HONDA', 'FORD', 'GM', 'NISSAN', 'VOLKSWAGEN', 
+    'HYUNDAI', 'KIA', 'MAZDA', 'SUBARU', 'JEEP', 'AUDI', 
+    'BMW', 'MERCEDES_BENZ', 'LEXUS', 'VOLVO', 'FIAT', 
+    'RENAULT', 'PEUGEOT', 'CITROEN'
+] as const);
+
+export type FuelType = 
+    | 'GASOLINE' | 'ALCOHOL' | 'FLEX' | 'DIESEL';
+
+export const getAvailableFuelTypes = (): FuelType[] => ([
+    'GASOLINE', 'ALCOHOL', 'FLEX', 'DIESEL'
+] as const);
+
+export interface Vehicle {
+    id: number;
+    model: string; 
+    brand: VehicleBrand; 
+    year: number; 
+    engine: string;
+    fuelType: FuelType; 
+}
+
+export interface VehiclePageResponse {
+    content: Vehicle[];
+    totalElements: number;
+    totalPages: number;
+    number: number; 
+    size: number; 
+    first: boolean;
+    last: boolean;
+    empty: boolean;
+}
+
+export interface VehicleSearchParams {
+    model: string;
+    brand: string;
+    engine: string;
+    fuelType: string;
+    page: number;
+    size: number;
+}
